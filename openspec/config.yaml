@@ -26,52 +26,116 @@ context: |
   the registered path is durable) to query specs with `--store chor-app`
   from the code repos without duplicating openspec/ there.
 
-  Domain glossary (keep German terms in specs — they're the terms the choir
-  and legacy app already use; don't translate them to English):
-    - Lied / Lieder        — song(s)
-    - Vortrag               — performance (song sung for an audience)
-    - Chorprobe              — choir rehearsal (a session, not a single song)
-    - Einsingen              — warm-up portion of a Chorprobe; has its own
-                              leader, chosen from a known set of conductors
-    - Dirigent                — conductor
-    - Klavierspieler          — pianist
-    - Thema / Themen          — topic/theme tag(s) attached to a song
-    - Buecher, Mappe, Neue Lieder — the three independent song collections
-      (see below)
+  Draft domain entity model (candidate bounded contexts, entities, value
+  objects, aggregates): domain-model.md in this repo. Treat it as a living
+  reference, not final — refine per capability's own design.md as specs are
+  written.
 
-  Core capabilities to (re)build, taken from the legacy app:
-    - Three independent, separately-numbered song collections:
-      Buecher (Bücher 1-4, continuously numbered 1-727, cross-book themes),
-      Mappe (115 songs, own numbering, no themes),
-      Neue Lieder (fully free, user-defined collection).
-      All three can be extended with new songs via "Lieder verwalten."
-    - Vortrag/Chorprobe logging: record which song was sung when, with
-      collection, number, pianist, conductor, note. Title/theme are looked
-      up automatically. Chorprobe is session-based: create a "Probe" with a
-      date and Einsingen leader first, then log songs sung in it; past
-      sessions are viewable grouped by Probe and searchable by title,
-      number, pianist, conductor, or Einsingen leader.
-    - Themensuche: search Buecher by theme and/or title/number; Mappe and
-      Neue Lieder have their own separate search (no theme filter, kept
-      deliberately apart from the cross-book theme search).
-    - Lieder verwalten: add new songs to any collection; attach additional
-      themes to any existing song (pick existing or type a new theme name,
-      which then becomes available everywhere).
-    - Auswertung: usage counts per song (total / Vortrag / Chorprobe),
-      plus separate stats per pianist and per conductor.
-    - Daten & Backup / multi-user: legacy app stores in browser localStorage
+  LANGUAGE POLICY (decided 2026-09-15): the target UI/UX is German (the
+  audience). The domain model and ALL development — entity/class/field
+  names, API, specs, ADRs, code — is English. glossary.md in this repo is
+  the single source of truth mapping German UI terms to English
+  domain/code names (e.g. Vortrag -> Performance, Chorprobe -> Rehearsal,
+  Dirigent -> Conductor, Mappe -> Folder, Gemeinschaft -> Community). Read
+  it before naming anything in a spec, design.md, or code — do not
+  translate ad hoc, and do not write German identifiers in code. This
+  supersedes an earlier "keep German terms in code" instruction from
+  initial project setup.
+
+  Cross-cutting technical decisions (stack, tooling, conventions — not tied
+  to one capability) are recorded as ADRs in decisions/ in this repo, one
+  file per decision (decisions/0001-..., see decisions/README.md for the
+  format). Treat an Accepted ADR as binding for the affected repo until a
+  later ADR supersedes it. So far:
+    - decisions/0001-client-stack.md — chor-app-client: React+TS, Redux
+      Toolkit for client state only, TanStack React Query for all server
+      data (no RTK Query), react-bootstrap, mobile-first, and a custom
+      fetch-based HTTP utility instead of axios (axios explicitly not
+      trusted/not to be added as a dependency).
+    - decisions/0002-server-stack.md — chor-app-server: NestJS + Prisma +
+      PostgreSQL, DDD with one module per bounded context
+      (domain/application/infrastructure/interface sublayers, domain model
+      fully isolated from Prisma — no Prisma types or Nest decorators in
+      domain/), email via nodemailer/SMTP behind a domain port, API docs
+      via @nestjs/swagger on interface-layer DTOs only.
+    - decisions/0003-multi-tenancy-identity.md — the system is
+      multi-tenant: a Community is the tenant root, created automatically
+      when the first user registers; that user becomes Administrator and
+      can invite further Users by email (typically conductors, choir
+      wardens) via the SMTP capability from ADR 0002 — invite mechanics
+      (token/expiry) left to the Identity & Community spec. A User CAN
+      belong to multiple Communities (revised 2026-09-15) via a
+      CommunityMembership join with a per-membership role; client/session
+      needs an active-Community selector. No MusicalGroup/ensemble layer
+      inside a Community — deliberately deferred, see the ADR. The Person
+      entity (pianist/conductor, used for Reporting) stays separate from
+      User with only an optional link, so guest pianists/conductors
+      without logins remain supported, and is not shared across
+      Communities.
+
+  Domain glossary (German UI term -> English domain/code name; see
+  glossary.md for the full table and maintenance rule):
+    - Song (Lied)                 - a song
+    - Performance (Vortrag)       - standalone; no Rehearsal required
+    - Rehearsal (Chorprobe/Probe) - a session, not a single song
+    - WarmUp (Einsingen)          - warm-up portion of a Rehearsal; has its
+                                    own leader, chosen from known conductors
+    - Conductor (Dirigent)
+    - Pianist (Klavierspieler)
+    - Theme (Thema/Themen)        - topic tag(s) attached to a song
+    - Books / Folder / NewSongs (Buecher / Mappe / Neue Lieder) — the three
+      independent song collections (see below)
+    - Community (Gemeinschaft)    - a tenant: one choir/group and
+                                    everything it owns
+
+  Core capabilities to (re)build, taken from the legacy app (English names
+  per glossary.md; German original noted once per capability):
+    - Three independent, separately-numbered song collections: Books
+      (Bücher 1-4, continuously numbered 1-727, cross-book themes), Folder
+      (Mappe: 115 songs, own numbering, no themes), NewSongs (Neue Lieder:
+      fully free, user-defined collection). All three can be extended with
+      new songs via the "manage songs" (Lieder verwalten) feature.
+    - Performance/Rehearsal logging (Vortrag/Chorprobe): record which song
+      was sung when, with collection, number, pianist, conductor, note.
+      Title/theme are looked up automatically. Rehearsal is session-based:
+      create it with a date and WarmUp leader first, then log songs sung
+      in it; past sessions are viewable grouped by Rehearsal and
+      searchable by title, number, pianist, conductor, or WarmUp leader.
+      Performance does NOT require a Rehearsal — a song can be logged as a
+      standalone, spontaneous performance with no related rehearsal.
+    - Theme search (Themensuche): search Books by theme and/or
+      title/number; Folder and NewSongs have their own separate search (no
+      theme filter, kept deliberately apart from the cross-book theme
+      search).
+    - Manage songs (Lieder verwalten): add new songs to any collection;
+      attach additional themes to any existing song (pick existing or
+      type a new theme name, which then becomes available everywhere).
+    - Reporting (Auswertung): usage counts per song (total / Performance /
+      Rehearsal), plus separate stats per pianist and per conductor.
+    - Data & backup / multi-user: legacy app stores in browser localStorage
       by default, with an optional shared-file sync (OneDrive) that is
       additive-merge only (no delete propagation, no real conflict
-      resolution). The new backend (NestJS + a real database, not yet
-      chosen) is expected to replace this with proper shared multi-user
-      storage — capture this as an explicit decision in the relevant spec
-      rather than assuming.
+      resolution). The new backend (NestJS + PostgreSQL via Prisma) is
+      expected to replace this with proper shared multi-user storage,
+      scoped per Community (see decisions/0003-multi-tenancy-identity.md).
+    - Registration & community setup: registering creates a Community and
+      an Administrator User in one step; the Administrator invites further
+      Users by email afterward. See
+      decisions/0003-multi-tenancy-identity.md.
+    - Email: chor-app-server will connect to an SMTP mail server
+      (nodemailer, see decisions/0002-server-stack.md) for transactional
+      email; confirmed use case: Community invites. Other events that
+      might send email are not decided yet — define per capability spec.
 
   Open architecture decisions not yet made (do not assume an answer —
   surface these as questions or explicit decisions in proposals that touch
-  them): auth/user model, database choice, hosting, and whether Chorprobe
-  sync stays "pragmatic additive merge" or becomes a real multi-user backend
-  with conflict handling now that there's a server.
+  them, and record the outcome as a new ADR in decisions/): concrete auth
+  mechanism (password/magic-link/OAuth), invite email mechanics
+  (token/expiry/resend — channel itself is decided: email), role
+  granularity beyond Administrator/member, hosting, SMTP server details
+  (self-hosted vs. relay/provider), chor-app-server's precise
+  bounded-context boundaries, and the client's localization mechanism for
+  the German UI (hardcoded strings vs. an i18n layer).
 
 # Per-artifact rules (optional)
 # rules:
