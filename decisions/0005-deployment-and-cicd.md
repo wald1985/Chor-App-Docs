@@ -1,6 +1,8 @@
 # 0005: Deployment & CI/CD
 
-**Status:** Accepted (2026-09-15)
+**Status:** Superseded by [0006](0006-deployment-as-implemented.md)
+(2026-09-15) — the setup below was never deployed as described; read 0006
+for the real, working pipeline.
 
 ## Context
 Both `chor-app-server` and `chor-app-client` had Docker/CI-CD files sitting

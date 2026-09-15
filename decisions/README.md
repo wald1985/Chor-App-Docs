@@ -15,6 +15,9 @@ deviate from it.
 - `0002-server-stack.md` — chor-app-server tech stack & DDD architecture
 - `0003-multi-tenancy-identity.md` — Community/User tenancy model
 - `0004-auth-mechanism.md` — email+password auth, JWT bearer session
-- `0005-deployment-and-cicd.md` — Docker builds, CI vs. CD split, deploy
-  triggers for both repos
+- `0005-deployment-and-cicd.md` — *Superseded by 0006.* Planned Docker
+  builds, CI vs. CD split, deploy triggers for both repos
+- `0006-deployment-as-implemented.md` — the working deploy pipeline of
+  both repos (host layout, secrets, config, client API URL resolution)
+  and its known issues
 
