@@ -81,6 +81,13 @@ context: |
       Self-service password change and emailed forgot/reset-password are
       the `identity/password-management` capability, using the
       `EmailSender`/nodemailer port from ADR 0002 for the first time.
+    - decisions/0005-deployment-and-cicd.md — chor-app-server deploys as a
+      Docker image (Node + `nest build`, not Bun) over SSH via GitHub
+      Actions, triggered only on push to `main` (never on a PR);
+      chor-app-client builds a static Vite bundle served by nginx in
+      Docker, with `VITE_API_URL` required at image-build time. Both
+      repos also run a separate, secret-free `ci.yml` (lint/type-check/
+      build/test) on every push and PR.
 
   Domain glossary (German UI term -> English domain/code name; see
   glossary.md for the full table and maintenance rule):
