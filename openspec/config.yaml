@@ -1,0 +1,85 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+context: |
+  Product: Chor-App — a repertoire and rehearsal tracker for a German-speaking
+  church/community choir. It is being rebuilt from a legacy single-file
+  HTML/Excel tool (still in this repo: chor-app_1.html, chor-app_V2.html,
+  README.md, README_old.md) into a real fullstack web app. Treat those legacy
+  files as the functional source of truth for business rules until specs
+  replace them — read them before writing specs for a capability they cover.
+
+  Repos (kept separate on purpose, no monorepo):
+    - chor-app-docs (this repo)   — product specs live here via OpenSpec.
+      github.com/wald1985/Chor-App-Docs
+    - chor-app-client             — React + TypeScript frontend.
+      github.com/wald1985/chor-app-client
+    - chor-app-server             — NestJS backend/API.
+      github.com/wald1985/chor-app-server
+  Each code repo sets up its own package manager/tooling independently
+  (not decided yet as of this writing). Planning (propose/spec/design/tasks)
+  happens against this docs repo; implementation tasks are then carried out
+  in chor-app-client / chor-app-server, which sit as sibling folders on disk.
+  Optional: register this repo as an OpenSpec store (`openspec store register
+  <path-to-chor-app-docs> --id chor-app --yes`, run from a real terminal so
+  the registered path is durable) to query specs with `--store chor-app`
+  from the code repos without duplicating openspec/ there.
+
+  Domain glossary (keep German terms in specs — they're the terms the choir
+  and legacy app already use; don't translate them to English):
+    - Lied / Lieder        — song(s)
+    - Vortrag               — performance (song sung for an audience)
+    - Chorprobe              — choir rehearsal (a session, not a single song)
+    - Einsingen              — warm-up portion of a Chorprobe; has its own
+                              leader, chosen from a known set of conductors
+    - Dirigent                — conductor
+    - Klavierspieler          — pianist
+    - Thema / Themen          — topic/theme tag(s) attached to a song
+    - Buecher, Mappe, Neue Lieder — the three independent song collections
+      (see below)
+
+  Core capabilities to (re)build, taken from the legacy app:
+    - Three independent, separately-numbered song collections:
+      Buecher (Bücher 1-4, continuously numbered 1-727, cross-book themes),
+      Mappe (115 songs, own numbering, no themes),
+      Neue Lieder (fully free, user-defined collection).
+      All three can be extended with new songs via "Lieder verwalten."
+    - Vortrag/Chorprobe logging: record which song was sung when, with
+      collection, number, pianist, conductor, note. Title/theme are looked
+      up automatically. Chorprobe is session-based: create a "Probe" with a
+      date and Einsingen leader first, then log songs sung in it; past
+      sessions are viewable grouped by Probe and searchable by title,
+      number, pianist, conductor, or Einsingen leader.
+    - Themensuche: search Buecher by theme and/or title/number; Mappe and
+      Neue Lieder have their own separate search (no theme filter, kept
+      deliberately apart from the cross-book theme search).
+    - Lieder verwalten: add new songs to any collection; attach additional
+      themes to any existing song (pick existing or type a new theme name,
+      which then becomes available everywhere).
+    - Auswertung: usage counts per song (total / Vortrag / Chorprobe),
+      plus separate stats per pianist and per conductor.
+    - Daten & Backup / multi-user: legacy app stores in browser localStorage
+      by default, with an optional shared-file sync (OneDrive) that is
+      additive-merge only (no delete propagation, no real conflict
+      resolution). The new backend (NestJS + a real database, not yet
+      chosen) is expected to replace this with proper shared multi-user
+      storage — capture this as an explicit decision in the relevant spec
+      rather than assuming.
+
+  Open architecture decisions not yet made (do not assume an answer —
+  surface these as questions or explicit decisions in proposals that touch
+  them): auth/user model, database choice, hosting, and whether Chorprobe
+  sync stays "pragmatic additive merge" or becomes a real multi-user backend
+  with conflict handling now that there's a server.
+
+# Per-artifact rules (optional)
+# rules:
+#   proposal:
+#     - Keep proposals under 500 words
+
+# Per-operation guidance (optional)
+# operations:
+#   apply:
+#     guidance:
+#       - Keep test summaries concise
