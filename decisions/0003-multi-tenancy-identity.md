@@ -111,8 +111,9 @@ of one specific ensemble). Don't build toward this speculatively — revisit
 only when a real multi-ensemble organization is a confirmed target.
 
 ## Open follow-ups
-- Auth mechanism itself (password+email, magic link, OAuth, ...) — not
-  decided.
+- ~~Auth mechanism itself (password+email, magic link, OAuth, ...) — not
+  decided.~~ Decided 2026-09-15: email+password with a JWT bearer token,
+  see `decisions/0004-auth-mechanism.md`.
 - Invite email mechanics (token/link format, expiry, resend, what the
   invitee sets on accept) — the channel is decided (email), the mechanics
   are left to the Identity & Community capability spec.

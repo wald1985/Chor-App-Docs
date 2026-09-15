@@ -19,6 +19,17 @@ marked TBD). Needed before any scaffolding or first UI-facing spec/tasks.
 - **UI / component library:** `react-bootstrap` (Bootstrap 5 styled React
   components), not plain Bootstrap CSS + JS bundle. Reason: idiomatic React
   components, no jQuery/Bootstrap-JS fighting React over DOM ownership.
+- **Styling philosophy: stay as close to default Bootstrap as possible.**
+  Use react-bootstrap components with their default styling; reach for
+  custom CSS/SCSS only when a screen genuinely needs something Bootstrap
+  doesn't offer out of the box — not as the default way of building a
+  screen. Don't build a custom design system or override Bootstrap's
+  look-and-feel wholesale; any custom style should be the exception on a
+  specific component, not the norm.
+- **No Tailwind CSS.** Styling goes through `react-bootstrap`'s components
+  and Bootstrap's grid/utility classes/SCSS variables — don't add Tailwind
+  alongside it. Two utility-class systems fighting over the same elements
+  is what this rule avoids; it's not a judgment on Tailwind in general.
 - **Layout:** mobile-first. Design and build for the smallest screen first,
   then progressively enhance using Bootstrap's responsive grid/breakpoints
   for larger screens.
@@ -46,6 +57,9 @@ marked TBD). Needed before any scaffolding or first UI-facing spec/tasks.
   React Query for server state.
 - **Plain Bootstrap CSS + JS bundle instead of react-bootstrap** —
   rejected: worse fit for React, more manual DOM/interactivity handling.
+- **Tailwind CSS** — rejected: the styling system is Bootstrap (via
+  react-bootstrap); adding Tailwind on top would mean two competing
+  utility/styling conventions in the same codebase.
 
 ## Open follow-ups
 - Custom HTTP utility's exact API/location — decide at scaffolding time.

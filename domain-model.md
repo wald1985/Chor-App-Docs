@@ -35,7 +35,11 @@ to avoid repeating it everywhere, not because it's optional.
   then invite further Users **by email** (decided — typically conductors,
   choir wardens). Roles beyond Administrator vs. a general member, and
   the exact invite-email mechanics (token/expiry/resend), are not decided
-  yet.
+  yet. A User can change their own password, or recover it via an emailed
+  single-use code (`identity/password-management`, decisions/0004);
+  internally carries a `tokenVersion` counter so a password change/reset
+  invalidates other outstanding sessions — an implementation detail, not
+  something other capabilities need to know about.
 - **No `MusicalGroup`/ensemble layer** — considered and deliberately
   deferred (see ADR 0003): one Community *is* one musical group (choir or
   orchestra); an organization running a second ensemble creates a second
@@ -97,9 +101,11 @@ to avoid repeating it everywhere, not because it's optional.
 ## Notifications
 
 No entities yet — just the `EmailSender` port from
-`decisions/0002-server-stack.md`. An entity like `EmailMessage` would only
-appear if a queue/template system is needed later. Used for the Community
-invite flow (ADR 0003).
+`decisions/0002-server-stack.md`, implemented (`src/notifications/` in
+chor-app-server) and in real use for the `identity/password-management`
+forgot-password email. An entity like `EmailMessage` would only appear if a
+queue/template system is needed later. Also used for the Community invite
+flow (ADR 0003, not yet built).
 
 ## Relationships (summary)
 
@@ -125,7 +131,8 @@ invite flow (ADR 0003).
   domain layer, the DB layer, or both.
 - Whether `Performance` should literally reuse the `SungSongEntry` value
   object type or just share its shape.
-- Auth mechanism, invite email mechanics, and role granularity beyond
-  Admin/member (see ADR 0003).
+- Invite email mechanics and role granularity beyond Admin/member (see ADR
+  0003). Auth mechanism itself is decided — email+password, JWT bearer
+  token, see `decisions/0004-auth-mechanism.md`.
 - Localization mechanism for the German UI (hardcoded strings vs. an i18n
   layer) — see `glossary.md`.

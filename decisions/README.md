@@ -14,4 +14,5 @@ deviate from it.
 - `0001-client-stack.md` — chor-app-client tech stack
 - `0002-server-stack.md` — chor-app-server tech stack & DDD architecture
 - `0003-multi-tenancy-identity.md` — Community/User tenancy model
+- `0004-auth-mechanism.md` — email+password auth, JWT bearer session
 

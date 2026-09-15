@@ -49,9 +49,9 @@ context: |
   later ADR supersedes it. So far:
     - decisions/0001-client-stack.md — chor-app-client: React+TS, Redux
       Toolkit for client state only, TanStack React Query for all server
-      data (no RTK Query), react-bootstrap, mobile-first, and a custom
-      fetch-based HTTP utility instead of axios (axios explicitly not
-      trusted/not to be added as a dependency).
+      data (no RTK Query), react-bootstrap (no Tailwind CSS alongside it),
+      mobile-first, and a custom fetch-based HTTP utility instead of axios
+      (axios explicitly not trusted/not to be added as a dependency).
     - decisions/0002-server-stack.md — chor-app-server: NestJS + Prisma +
       PostgreSQL, DDD with one module per bounded context
       (domain/application/infrastructure/interface sublayers, domain model
@@ -72,6 +72,15 @@ context: |
       User with only an optional link, so guest pianists/conductors
       without logins remain supported, and is not shared across
       Communities.
+    - decisions/0004-auth-mechanism.md — auth is email+password; a
+      successful register/login returns a JWT, sent by the client as
+      `Authorization: Bearer <token>` (not a cookie). Implemented as the
+      `identity/registration-and-login` capability in chor-app-server.
+      Amended with a `tokenVersion` mechanism: changing/resetting a
+      password invalidates every other outstanding JWT for that User.
+      Self-service password change and emailed forgot/reset-password are
+      the `identity/password-management` capability, using the
+      `EmailSender`/nodemailer port from ADR 0002 for the first time.
 
   Domain glossary (German UI term -> English domain/code name; see
   glossary.md for the full table and maintenance rule):
@@ -129,13 +138,13 @@ context: |
 
   Open architecture decisions not yet made (do not assume an answer —
   surface these as questions or explicit decisions in proposals that touch
-  them, and record the outcome as a new ADR in decisions/): concrete auth
-  mechanism (password/magic-link/OAuth), invite email mechanics
-  (token/expiry/resend — channel itself is decided: email), role
+  them, and record the outcome as a new ADR in decisions/): invite email
+  mechanics (token/expiry/resend — channel itself is decided: email), role
   granularity beyond Administrator/member, hosting, SMTP server details
   (self-hosted vs. relay/provider), chor-app-server's precise
   bounded-context boundaries, and the client's localization mechanism for
-  the German UI (hardcoded strings vs. an i18n layer).
+  the German UI (hardcoded strings vs. an i18n layer). Auth mechanism
+  itself is decided — see decisions/0004-auth-mechanism.md.
 
 # Per-artifact rules (optional)
 # rules:
