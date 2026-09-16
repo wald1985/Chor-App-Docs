@@ -36,6 +36,9 @@ All work follows the four-phase process in `development-process.md`
   bounded context. Living reference, feeds each capability's design.md.
 - `capability-breakdown.md` — proposed split into loosely coupled
   capabilities, dependencies and implementation order.
+- `brainstorm/` — open brainstorms that are not decisions yet and block a
+  design (e.g. `brainstorm/repertoire-books-and-legacy-import.md`). Don't
+  treat them as binding.
 - `legacy-app-feature-gap.md` — legacy app features (from
   `RELEASE-NOTES-chor-app.txt`) not yet covered by `domain-model.md`.
 
