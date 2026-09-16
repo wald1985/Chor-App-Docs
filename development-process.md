@@ -34,8 +34,17 @@ context for the next one.
 
 ## Phase 4: Implementation
 
-- **Multi-agent approach:** instead of a single prompt, a "team" of agents
-  with separate roles is used: developer, reviewer, tester, security agent.
+- **Single agent, strictly sequential** (decided 2026-09-16, replaces the
+  original multi-agent "team" of developer/reviewer/tester/security
+  agents): one agent does all the work, one plan phase at a time, with no
+  subagents and no parallel work. The former roles become ordered steps the
+  same agent performs within every plan phase:
+  1. implement the code and tests of the phase;
+  2. check that the tests cover every acceptance criterion, add missing ones;
+  3. review the code against the design and architecture (ADR layering);
+  4. security check (injections, data leaks, authorization) where relevant;
+  5. run all quality gates below, then commit.
+  The next plan phase starts only after the previous one is committed.
 - **Quality gates:** code is not accepted until all checks pass:
   - successful build and passing tests;
   - compliance with linter rules and complexity metrics;
