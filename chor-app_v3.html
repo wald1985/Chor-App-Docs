@@ -230,6 +230,8 @@
   <button data-tab="auswertung">Auswertung</button>
   <button data-tab="klavier">Klavierspieler</button>
   <button data-tab="dirigent">Dirigenten</button>
+  <button data-tab="verwaltung">Verwaltung</button>
+  <button data-tab="abwesenheiten">Abwesenheiten</button>
   <button data-tab="themensuche">Themensuche</button>
   <button data-tab="lieder">Lieder verwalten</button>
   <button data-tab="daten">Daten &amp; Backup</button>
@@ -392,6 +394,25 @@
       <input class="search-box" type="text" id="v_search" placeholder="Titel, Liednummer oder Klavierspieler durchsuchen...">
       <div id="v_table" style="margin-top:12px;"></div>
     </div>
+
+    <div class="card">
+      <h2>PDF-Export: zuletzt gesungene &amp; geprobte Lieder</h2>
+      <p class="muted">Erstellt eine druckfertige Übersicht für einen frei wählbaren Zeitraum – getrennt nach Vortrag (Vortrags-Historie) und Chorprobe (nach Proben-Terminen gruppiert, inkl. Einsingen). Öffnet eine Vorschau mit Druckdialog; dort als Ziel „Als PDF speichern“ wählen.</p>
+      <div class="row">
+        <div class="field">
+          <label>Von</label>
+          <input type="date" id="pdf_von">
+        </div>
+        <div class="field">
+          <label>Bis</label>
+          <input type="date" id="pdf_bis">
+        </div>
+      </div>
+      <div style="margin-top:14px;">
+        <button class="primary" id="pdf_export">📄 PDF-Vorschau öffnen</button>
+        <span id="pdf_confirm" class="muted" style="margin-left:10px;"></span>
+      </div>
+    </div>
   </section>
 
   <!-- AUSWERTUNG -->
@@ -439,6 +460,75 @@
       <p class="muted">Zählt alle Eintragungen (Vortrag und Chorprobe), bei denen ein Dirigent angegeben wurde.</p>
       <input class="search-box" type="text" id="di_search" placeholder="Dirigent durchsuchen...">
       <div id="di_table" style="margin-top:12px;"></div>
+    </div>
+  </section>
+
+  <!-- VERWALTUNG -->
+  <section id="tab-verwaltung" style="display:none;">
+    <div class="card">
+      <h2>Klavierspieler verwalten</h2>
+      <div class="row">
+        <div class="field" style="flex:1; min-width:220px;">
+          <label>Name</label>
+          <input type="text" id="vw_pianist_name" placeholder="z. B. Anna">
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <button class="primary" id="vw_pianist_add">Hinzufügen</button>
+        <span id="vw_pianist_confirm" class="muted" style="margin-left:10px;"></span>
+      </div>
+      <div id="vw_pianist_table" style="margin-top:14px;"></div>
+    </div>
+
+    <div class="card">
+      <h2>Dirigenten verwalten</h2>
+      <div class="row">
+        <div class="field" style="flex:1; min-width:220px;">
+          <label>Name</label>
+          <input type="text" id="vw_dirigent_name" placeholder="z. B. Maria">
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <button class="primary" id="vw_dirigent_add">Hinzufügen</button>
+        <span id="vw_dirigent_confirm" class="muted" style="margin-left:10px;"></span>
+      </div>
+      <div id="vw_dirigent_table" style="margin-top:14px;"></div>
+    </div>
+  </section>
+
+  <!-- ABWESENHEITEN -->
+  <section id="tab-abwesenheiten" style="display:none;">
+    <div class="card">
+      <h2>Abwesenheitskalender – Urlaub &amp; Fehlzeiten</h2>
+      <p class="muted">Trage Urlaub, Krankheit oder sonstige Abwesenheiten von Klavierspielern und Dirigenten ein.</p>
+      <div class="row">
+        <div class="field" style="min-width:220px;">
+          <label>Person</label>
+          <select id="ab_person"></select>
+        </div>
+        <div class="field">
+          <label>Von</label>
+          <input type="date" id="ab_von">
+        </div>
+        <div class="field">
+          <label>Bis</label>
+          <input type="date" id="ab_bis">
+        </div>
+        <div class="field" style="flex:1; min-width:200px;">
+          <label>Grund (optional)</label>
+          <input type="text" id="ab_grund" placeholder="z. B. Urlaub, Krankheit">
+        </div>
+      </div>
+      <div style="margin-top:14px;">
+        <button class="primary" id="ab_submit">Abwesenheit eintragen</button>
+        <span id="ab_confirm" class="muted" style="margin-left:10px;"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Eingetragene Abwesenheiten</h2>
+      <input class="search-box" type="text" id="ab_search" placeholder="Person oder Grund durchsuchen...">
+      <div id="ab_table" style="margin-top:12px;"></div>
     </div>
   </section>
 
@@ -603,14 +693,101 @@
 
   const LOG_KEY = 'chorlieder_log_v1';
   const PROBEN_KEY = 'chorlieder_proben_v1';
-  const PIANISTEN = ['Lorina', 'Shanell', 'Natascha', 'Juliane', 'Springer'];
-  const DIRIGENTEN = ['Paul', 'Alex', 'Daniel'];
+
+  // ---------- Klavierspieler / Dirigenten (Verwaltung) ----------
+  const PERSONEN_KEY = 'chorlieder_personen_v1';
+  const PERSONEN_DEFAULT = {
+    pianisten: ['Lorina', 'Shanell', 'Natascha', 'Juliane', 'Springer'],
+    dirigenten: ['Paul', 'Alex', 'Daniel']
+  };
+  function loadPersonen() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(PERSONEN_KEY));
+      return {
+        pianisten: Array.isArray(parsed && parsed.pianisten) ? parsed.pianisten : PERSONEN_DEFAULT.pianisten.slice(),
+        dirigenten: Array.isArray(parsed && parsed.dirigenten) ? parsed.dirigenten : PERSONEN_DEFAULT.dirigenten.slice()
+      };
+    } catch (e) { return { pianisten: PERSONEN_DEFAULT.pianisten.slice(), dirigenten: PERSONEN_DEFAULT.dirigenten.slice() }; }
+  }
+  function savePersonen() {
+    localStorage.setItem(PERSONEN_KEY, JSON.stringify(PERSONEN));
+    writeToFile();
+  }
+  // PERSONEN.pianisten/dirigenten sind dieselben Array-Referenzen wie PIANISTEN/DIRIGENTEN -
+  // ueberall im Code bitte mutieren (push/splice/length=0+push...), nicht neu zuweisen.
+  let PERSONEN = loadPersonen();
+  let PIANISTEN = PERSONEN.pianisten;
+  let DIRIGENTEN = PERSONEN.dirigenten;
+
+  function addPerson(rolle, name) {
+    name = (name || '').trim();
+    if (!name) return false;
+    const liste = rolle === 'Dirigent' ? DIRIGENTEN : PIANISTEN;
+    if (liste.some(n => n.toLowerCase() === name.toLowerCase())) return false;
+    liste.push(name);
+    savePersonen();
+    return true;
+  }
+  function removePerson(rolle, name) {
+    const liste = rolle === 'Dirigent' ? DIRIGENTEN : PIANISTEN;
+    const idx = liste.indexOf(name);
+    if (idx === -1) return;
+    liste.splice(idx, 1);
+    savePersonen();
+  }
+  function mergeNamenListe(bestehend, eingehend) {
+    const menge = new Set(bestehend);
+    const ergebnis = [...bestehend];
+    (eingehend || []).forEach(n => { if (n && !menge.has(n)) { ergebnis.push(n); menge.add(n); } });
+    return ergebnis;
+  }
+
+  // ---------- Abwesenheitskalender (Urlaub/Fehlzeiten von Klavierspielern und Dirigenten) ----------
+  const ABWESENHEITEN_KEY = 'chorlieder_abwesenheiten_v1';
+  function loadAbwesenheiten() {
+    try { return JSON.parse(localStorage.getItem(ABWESENHEITEN_KEY)) || []; }
+    catch (e) { return []; }
+  }
+  function saveAbwesenheiten() {
+    localStorage.setItem(ABWESENHEITEN_KEY, JSON.stringify(ABWESENHEITEN));
+    writeToFile();
+  }
+  // jeder Eintrag: { id, rolle: 'Pianist'|'Dirigent', name, von, bis, grund }
+  let ABWESENHEITEN = loadAbwesenheiten();
+
+  function jsAttr(s) { return escapeHtml(JSON.stringify(String(s))); }
 
   function populateNameDropdown(selectId, namen, placeholder) {
     const sel = document.getElementById(selectId);
     if (!sel) return;
     sel.innerHTML = `<option value="">${placeholder}</option>` +
       namen.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+  }
+  function populateAbwesenheitPersonDropdown() {
+    const sel = document.getElementById('ab_person');
+    if (!sel) return;
+    const bisheriger = sel.value;
+    let html = '<option value="">Person wählen...</option>';
+    if (PIANISTEN.length) {
+      html += '<optgroup label="Klavierspieler">' +
+        PIANISTEN.map(n => `<option value="Pianist::${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('') +
+        '</optgroup>';
+    }
+    if (DIRIGENTEN.length) {
+      html += '<optgroup label="Dirigenten">' +
+        DIRIGENTEN.map(n => `<option value="Dirigent::${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('') +
+        '</optgroup>';
+    }
+    sel.innerHTML = html;
+    if ([...sel.options].some(o => o.value === bisheriger)) sel.value = bisheriger;
+  }
+  function refreshPersonenDropdowns() {
+    populateNameDropdown('e_pianist', PIANISTEN, '(kein Klavierspieler)');
+    populateNameDropdown('p_pianist', PIANISTEN, '(kein Klavierspieler)');
+    populateNameDropdown('e_dirigent', DIRIGENTEN, '(kein Dirigent)');
+    populateNameDropdown('p_dirigent', DIRIGENTEN, '(kein Dirigent)');
+    populateNameDropdown('p_einsingen', DIRIGENTEN, '(kein Einsingen erfasst)');
+    populateAbwesenheitPersonDropdown();
   }
   const CUSTOM_KEY = 'chorlieder_custom_songs_v1';
 
@@ -779,6 +956,26 @@
         geaendert = true;
       }
     }
+
+    if (result.personen) {
+      const neuPianisten = mergeNamenListe(PIANISTEN, result.personen.pianisten);
+      const neuDirigenten = mergeNamenListe(DIRIGENTEN, result.personen.dirigenten);
+      if (neuPianisten.length !== PIANISTEN.length || neuDirigenten.length !== DIRIGENTEN.length) {
+        PIANISTEN.length = 0; PIANISTEN.push(...neuPianisten);
+        DIRIGENTEN.length = 0; DIRIGENTEN.push(...neuDirigenten);
+        localStorage.setItem(PERSONEN_KEY, JSON.stringify(PERSONEN));
+        geaendert = true;
+      }
+    }
+
+    if (Array.isArray(result.abwesenheiten)) {
+      const neuAbwesenheiten = mergeById(ABWESENHEITEN, result.abwesenheiten);
+      if (neuAbwesenheiten.length !== ABWESENHEITEN.length) {
+        ABWESENHEITEN = neuAbwesenheiten;
+        localStorage.setItem(ABWESENHEITEN_KEY, JSON.stringify(ABWESENHEITEN));
+        geaendert = true;
+      }
+    }
     return geaendert;
   }
 
@@ -810,7 +1007,7 @@
       }
       if (schreiben) {
         const writable = await fileHandle.createWritable();
-        await writable.write(JSON.stringify({ zuletzt_gespeichert: new Date().toISOString(), log: LOG, custom_songs: CUSTOM, proben: PROBEN, extra_themen: EXTRA_THEMEN }, null, 2));
+        await writable.write(JSON.stringify({ zuletzt_gespeichert: new Date().toISOString(), log: LOG, custom_songs: CUSTOM, proben: PROBEN, extra_themen: EXTRA_THEMEN, personen: PERSONEN, abwesenheiten: ABWESENHEITEN }, null, 2));
         await writable.close();
       }
       letzterSyncZeitpunkt = new Date();
@@ -836,8 +1033,14 @@
       };
       const proben = Array.isArray(parsed && parsed.proben) ? parsed.proben : [];
       const extra_themen = Array.isArray(parsed && parsed.extra_themen) ? parsed.extra_themen : [];
-      return { log, custom_songs, proben, extra_themen };
-    } catch (e) { return { log: [], custom_songs: { buecher: [], mappe: [], neue_lieder: [] }, proben: [], extra_themen: [] }; }
+      const pn = (parsed && parsed.personen) || {};
+      const personen = {
+        pianisten: Array.isArray(pn.pianisten) ? pn.pianisten : [],
+        dirigenten: Array.isArray(pn.dirigenten) ? pn.dirigenten : []
+      };
+      const abwesenheiten = Array.isArray(parsed && parsed.abwesenheiten) ? parsed.abwesenheiten : [];
+      return { log, custom_songs, proben, extra_themen, personen, abwesenheiten };
+    } catch (e) { return { log: [], custom_songs: { buecher: [], mappe: [], neue_lieder: [] }, proben: [], extra_themen: [], personen: { pianisten: [], dirigenten: [] }, abwesenheiten: [] }; }
   }
 
   async function linkNewFile() {
@@ -1175,7 +1378,7 @@
   };
 
   // ---------- Tabs ----------
-  const tabs = ['eintragen','chorprobe','verlauf','auswertung','klavier','dirigent','themensuche','lieder','daten'];
+  const tabs = ['eintragen','chorprobe','verlauf','auswertung','klavier','dirigent','verwaltung','abwesenheiten','themensuche','lieder','daten'];
   document.getElementById('tabNav').addEventListener('click', (e) => {
     if (e.target.tagName !== 'BUTTON') return;
     const tab = e.target.dataset.tab;
@@ -1188,6 +1391,8 @@
     if (tab === 'auswertung') renderAuswertung();
     if (tab === 'klavier') renderKlavierAuswertung();
     if (tab === 'dirigent') renderDirigentenAuswertung();
+    if (tab === 'verwaltung') renderPersonenTabellen();
+    if (tab === 'abwesenheiten') { populateAbwesenheitPersonDropdown(); renderAbwesenheiten(); }
     if (tab === 'themensuche') renderThemensuche();
     if (tab === 'lieder') { renderNeuTable(); populateLiedDropdownFuerThemen(); renderExtraThemenTable(); }
     if (tab === 'daten') renderDaten();
@@ -1268,6 +1473,8 @@
     renderAuswertung();
     renderKlavierAuswertung();
     renderDirigentenAuswertung();
+    renderPersonenTabellen();
+    renderAbwesenheiten();
   }
 
   // nach dem Laden externer Daten (Datei verknuepft/importiert) muessen auch die
@@ -1279,7 +1486,116 @@
     populateNeuThemaDropdown();
     populateLiedDropdownFuerThemen();
     renderExtraThemenTable();
+    refreshPersonenDropdowns();
   }
+
+  // ---------- Verwaltung: Klavierspieler / Dirigenten pflegen ----------
+  function renderPersonenTabellen() {
+    const pBox = document.getElementById('vw_pianist_table');
+    if (pBox) {
+      pBox.innerHTML = PIANISTEN.length
+        ? '<table><thead><tr><th>Name</th><th></th></tr></thead><tbody>' +
+          PIANISTEN.map(n => `<tr><td>${escapeHtml(n)}</td><td><button class="danger-btn" onclick="window.__delPerson('Pianist', ${jsAttr(n)})">Entfernen</button></td></tr>`).join('') +
+          '</tbody></table>'
+        : '<div class="empty">Noch keine Klavierspieler angelegt.</div>';
+    }
+    const dBox = document.getElementById('vw_dirigent_table');
+    if (dBox) {
+      dBox.innerHTML = DIRIGENTEN.length
+        ? '<table><thead><tr><th>Name</th><th></th></tr></thead><tbody>' +
+          DIRIGENTEN.map(n => `<tr><td>${escapeHtml(n)}</td><td><button class="danger-btn" onclick="window.__delPerson('Dirigent', ${jsAttr(n)})">Entfernen</button></td></tr>`).join('') +
+          '</tbody></table>'
+        : '<div class="empty">Noch keine Dirigenten angelegt.</div>';
+    }
+  }
+  window.__delPerson = function (rolle, name) {
+    const bezeichnung = rolle === 'Dirigent' ? 'Dirigent:in' : 'Klavierspieler:in';
+    if (!confirm(`${name} als ${bezeichnung} wirklich entfernen? Bereits eingetragene Vorträge/Proben bleiben davon unberührt.`)) return;
+    removePerson(rolle, name);
+    renderPersonenTabellen();
+    refreshPersonenDropdowns();
+    renderKlavierAuswertung();
+    renderDirigentenAuswertung();
+  };
+  document.getElementById('vw_pianist_add').addEventListener('click', () => {
+    const input = document.getElementById('vw_pianist_name');
+    const name = input.value.trim();
+    if (!name) { alert('Bitte einen Namen eingeben.'); return; }
+    if (!addPerson('Pianist', name)) { alert('Dieser Name ist bereits als Klavierspieler:in eingetragen.'); return; }
+    input.value = '';
+    const c = document.getElementById('vw_pianist_confirm');
+    c.textContent = `${name} hinzugefügt.`;
+    setTimeout(() => { c.textContent = ''; }, 3000);
+    renderPersonenTabellen();
+    refreshPersonenDropdowns();
+    renderKlavierAuswertung();
+  });
+  document.getElementById('vw_dirigent_add').addEventListener('click', () => {
+    const input = document.getElementById('vw_dirigent_name');
+    const name = input.value.trim();
+    if (!name) { alert('Bitte einen Namen eingeben.'); return; }
+    if (!addPerson('Dirigent', name)) { alert('Dieser Name ist bereits als Dirigent:in eingetragen.'); return; }
+    input.value = '';
+    const c = document.getElementById('vw_dirigent_confirm');
+    c.textContent = `${name} hinzugefügt.`;
+    setTimeout(() => { c.textContent = ''; }, 3000);
+    renderPersonenTabellen();
+    refreshPersonenDropdowns();
+    renderDirigentenAuswertung();
+  });
+
+  // ---------- Abwesenheiten: Abwesenheitskalender ----------
+  window.__delAbwesenheit = function (id) {
+    ABWESENHEITEN = ABWESENHEITEN.filter(a => a.id !== id);
+    saveAbwesenheiten();
+    renderAbwesenheiten();
+  };
+  function renderAbwesenheiten() {
+    const box = document.getElementById('ab_table');
+    if (!box) return;
+    const searchEl = document.getElementById('ab_search');
+    const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+    const heute = todayStr();
+    let rows = ABWESENHEITEN.slice().sort((a, b) => a.von.localeCompare(b.von));
+    if (q) rows = rows.filter(a => a.name.toLowerCase().includes(q) || (a.grund || '').toLowerCase().includes(q));
+    if (!rows.length) { box.innerHTML = '<div class="empty">Noch keine Abwesenheiten eingetragen.</div>'; return; }
+    box.innerHTML = '<table><thead><tr><th>Person</th><th>Rolle</th><th>Von</th><th>Bis</th><th>Grund</th><th></th></tr></thead><tbody>' +
+      rows.map(a => {
+        const aktuell = heute >= a.von && heute <= a.bis;
+        return `<tr>
+          <td>${escapeHtml(a.name)}${aktuell ? ' <span class="pill" style="background:var(--danger-soft); color:var(--danger);">derzeit abwesend</span>' : ''}</td>
+          <td>${escapeHtml(a.rolle)}</td>
+          <td>${fmtDate(a.von)}</td>
+          <td>${fmtDate(a.bis)}</td>
+          <td>${escapeHtml(a.grund || '')}</td>
+          <td><button class="danger-btn" onclick="window.__delAbwesenheit('${a.id}')">Löschen</button></td>
+        </tr>`;
+      }).join('') + '</tbody></table>';
+  }
+  const ab_search_el = document.getElementById('ab_search');
+  if (ab_search_el) ab_search_el.addEventListener('input', renderAbwesenheiten);
+  document.getElementById('ab_submit').addEventListener('click', () => {
+    const raw = document.getElementById('ab_person').value;
+    const von = document.getElementById('ab_von').value;
+    const bis = document.getElementById('ab_bis').value;
+    const grund = document.getElementById('ab_grund').value.trim();
+    if (!raw) { alert('Bitte eine Person wählen.'); return; }
+    if (!von || !bis) { alert('Bitte Von- und Bis-Datum angeben.'); return; }
+    if (bis < von) { alert('Das Bis-Datum darf nicht vor dem Von-Datum liegen.'); return; }
+    const sepIdx = raw.indexOf('::');
+    const rolle = raw.slice(0, sepIdx);
+    const name = raw.slice(sepIdx + 2);
+    const entry = { id: Date.now() + '_' + Math.random().toString(36).slice(2, 7), rolle, name, von, bis, grund };
+    ABWESENHEITEN.push(entry);
+    saveAbwesenheiten();
+    document.getElementById('ab_von').value = '';
+    document.getElementById('ab_bis').value = '';
+    document.getElementById('ab_grund').value = '';
+    const c = document.getElementById('ab_confirm');
+    c.textContent = `Abwesenheit für ${name} eingetragen.`;
+    setTimeout(() => { c.textContent = ''; }, 3000);
+    renderAbwesenheiten();
+  });
 
   window.__delEntry = function (id) {
     LOG = LOG.filter(e => e.id !== id);
@@ -1498,6 +1814,134 @@
   document.getElementById('v_kontext').addEventListener('change', renderVerlauf);
   document.getElementById('v_search').addEventListener('input', renderVerlauf);
 
+  // ---------- PDF-Export: zuletzt gesungene (Vortrag) & zuletzt geprobte (Chorprobe) Lieder ----------
+  function dateMinusDays(n) {
+    const d = new Date();
+    d.setDate(d.getDate() - n);
+    return d.toISOString().slice(0, 10);
+  }
+  function buildPdfExportHtml(von, bis) {
+    const vortragRows = LOG
+      .filter(e => e.kontext === 'Vortrag' && e.datum >= von && e.datum <= bis)
+      .sort((a, b) => (b.datum + b.id).localeCompare(a.datum + a.id));
+
+    const chorprobeRows = LOG.filter(e => e.kontext === 'Chorprobe' && e.datum >= von && e.datum <= bis);
+    // Gleiche Gruppierung wie in "Bisherige Proben": nach Probe-Termin, mit Legacy-Fallback nach Datum
+    // fuer Chorprobe-Eintraege ohne (mehr gueltige) probeId.
+    const probenImZeitraum = PROBEN.filter(p => p.datum >= von && p.datum <= bis);
+    const bekanntProbeIds = new Set(PROBEN.map(p => p.id));
+    const gruppen = probenImZeitraum.map(p => ({
+      probe: p,
+      songs: chorprobeRows.filter(e => e.probeId === p.id)
+    }));
+    const ohneGruppe = chorprobeRows.filter(e => !e.probeId || !bekanntProbeIds.has(e.probeId));
+    const legacyByDatum = {};
+    ohneGruppe.forEach(e => {
+      if (!legacyByDatum[e.datum]) legacyByDatum[e.datum] = [];
+      legacyByDatum[e.datum].push(e);
+    });
+    Object.keys(legacyByDatum).forEach(datum => {
+      const ziel = gruppen.find(g => g.probe.datum === datum);
+      if (ziel) ziel.songs = ziel.songs.concat(legacyByDatum[datum]);
+      else gruppen.push({ probe: { id: 'legacy_' + datum, datum, einsingen: '', notiz: '' }, songs: legacyByDatum[datum] });
+    });
+    gruppen.sort((a, b) => b.probe.datum.localeCompare(a.probe.datum));
+
+    const heute = new Date().toLocaleDateString('de-DE');
+    const zeitraumText = `${fmtDate(von)} – ${fmtDate(bis)}`;
+
+    const vortragHtml = vortragRows.length
+      ? `<table><thead><tr><th>Datum</th><th>Sammlung</th><th>Nr.</th><th>Titel</th><th>Thema</th><th>Klavierspieler</th><th>Dirigent</th><th>Notiz</th></tr></thead><tbody>` +
+        vortragRows.map(e => `<tr>
+          <td>${fmtDate(e.datum)}</td>
+          <td>${escapeHtml(e.sammlung)}</td>
+          <td>${e.nummer}</td>
+          <td>${escapeHtml(e.titel)}</td>
+          <td>${escapeHtml(e.thema || '')}</td>
+          <td>${escapeHtml(e.pianist || '')}</td>
+          <td>${escapeHtml(e.dirigent || '')}</td>
+          <td>${escapeHtml(e.notiz || '')}</td>
+        </tr>`).join('') + '</tbody></table>'
+      : '<p class="empty-print">Keine Vortrags-Einträge im gewählten Zeitraum.</p>';
+
+    const chorprobeHtml = gruppen.length
+      ? gruppen.map(g => `
+          <div class="probe-block">
+            <div class="probe-head"><b>${fmtDate(g.probe.datum)}</b>${g.probe.einsingen ? ` · Einsingen: ${escapeHtml(g.probe.einsingen)}` : ''} · ${g.songs.length} Lied(er)</div>
+            ${g.probe.notiz ? `<div class="probe-notiz">${escapeHtml(g.probe.notiz)}</div>` : ''}
+            ${g.songs.length ? `<table><thead><tr><th>Sammlung</th><th>Nr.</th><th>Titel</th><th>Klavierspieler</th><th>Dirigent</th><th>Notiz</th></tr></thead><tbody>` +
+              g.songs.map(e => `<tr>
+                <td>${escapeHtml(e.buch)}</td>
+                <td>${e.nummer}</td>
+                <td>${escapeHtml(e.titel)}</td>
+                <td>${escapeHtml(e.pianist || '')}</td>
+                <td>${escapeHtml(e.dirigent || '')}</td>
+                <td>${escapeHtml(e.notiz || '')}</td>
+              </tr>`).join('') + '</tbody></table>' : ''}
+          </div>`).join('')
+      : '<p class="empty-print">Keine Chorprobe-Einträge im gewählten Zeitraum.</p>';
+
+    return `<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Chor-App – Verlauf ${escapeHtml(zeitraumText)}</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; color: #111; margin: 24px; }
+  h1 { font-size: 20px; margin-bottom: 2px; }
+  .sub { color: #555; font-size: 13px; margin-bottom: 20px; }
+  h2 { font-size: 15px; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-top: 28px; }
+  table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 8px; }
+  th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #ddd; }
+  th { background: #f2f2f2; font-size: 10px; text-transform: uppercase; letter-spacing: .03em; }
+  .probe-block { margin-top: 14px; page-break-inside: avoid; }
+  .probe-head { font-size: 12px; margin-bottom: 2px; }
+  .probe-notiz { font-size: 11px; color: #555; margin-bottom: 4px; }
+  .empty-print { color: #777; font-size: 12px; font-style: italic; }
+  footer { margin-top: 32px; font-size: 10px; color: #888; text-align: center; }
+  @media print { body { margin: 12mm; } }
+</style>
+</head>
+<body>
+  <h1>Chor-App – Verlauf-Export</h1>
+  <div class="sub">Zeitraum: ${escapeHtml(zeitraumText)} · erstellt am ${escapeHtml(heute)}</div>
+
+  <h2>Zuletzt gesungen (Vortrag)</h2>
+  ${vortragHtml}
+
+  <h2>Zuletzt geprobt (Chorprobe)</h2>
+  ${chorprobeHtml}
+
+  <footer>© Daniel Kröcker – Chor-App</footer>
+</body>
+</html>`;
+  }
+
+  document.getElementById('pdf_von').value = dateMinusDays(30);
+  document.getElementById('pdf_bis').value = todayStr();
+  document.getElementById('pdf_export').addEventListener('click', () => {
+    const von = document.getElementById('pdf_von').value;
+    const bis = document.getElementById('pdf_bis').value;
+    if (!von || !bis) { alert('Bitte Von- und Bis-Datum wählen.'); return; }
+    if (bis < von) { alert('Das Bis-Datum darf nicht vor dem Von-Datum liegen.'); return; }
+    const html = buildPdfExportHtml(von, bis);
+    const win = window.open('', '_blank');
+    if (!win) {
+      alert('Das Fenster für die PDF-Vorschau konnte nicht geöffnet werden – bitte Pop-up-Blocker für diese Seite deaktivieren und erneut versuchen.');
+      return;
+    }
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    let gedruckt = false;
+    const doPrint = () => { if (gedruckt) return; gedruckt = true; try { win.focus(); win.print(); } catch (e) {} };
+    win.onload = doPrint;
+    setTimeout(doPrint, 400);
+    const c = document.getElementById('pdf_confirm');
+    c.textContent = 'Vorschau geöffnet – im Druckdialog „Als PDF speichern“ wählen.';
+    setTimeout(() => { c.textContent = ''; }, 5000);
+  });
+
   // ---------- Auswertung ----------
   function renderAuswertung() {
     const kontext = document.getElementById('a_kontext').value;
@@ -1642,11 +2086,12 @@
       <p>Bücher 1-4: <b>${SONGS_ALL.length}</b> Lieder erfasst (Nr. 1-727 fortlaufend)${CUSTOM.buecher.length ? `, davon ${CUSTOM.buecher.length} eigene` : ''}.</p>
       <p>Mappe: <b>${MAPPE_ALL.length}</b> Lieder erfasst (eigene Nummerierung)${CUSTOM.mappe.length ? `, davon ${CUSTOM.mappe.length} eigene` : ''}.</p>
       <p>Neue Lieder: <b>${NEUE_LIEDER_ALL.length}</b> Lieder erfasst (eigene Nummerierung).</p>
+      <p>Klavierspieler: <b>${PIANISTEN.length}</b> angelegt. Dirigenten: <b>${DIRIGENTEN.length}</b> angelegt. Abwesenheiten erfasst: <b>${ABWESENHEITEN.length}</b>.</p>
       ${META.buch4_unvollstaendig ? `<p style="color:var(--danger)">⚠ ${escapeHtml(META.hinweis)}</p>` : ''}
     `;
   }
   document.getElementById('d_export').addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify({ exportiert_am: new Date().toISOString(), log: LOG, custom_songs: CUSTOM, proben: PROBEN, extra_themen: EXTRA_THEMEN }, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify({ exportiert_am: new Date().toISOString(), log: LOG, custom_songs: CUSTOM, proben: PROBEN, extra_themen: EXTRA_THEMEN, personen: PERSONEN, abwesenheiten: ABWESENHEITEN }, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -1720,7 +2165,27 @@
           applyExtraThemen();
         }
 
-        document.getElementById('d_status').textContent = `${added} Eintragungen, ${neueLieder} eigene Lieder, ${neueProben} Proben und ${neueThemen} Zusatzthemen importiert (Duplikate übersprungen).`;
+        let neuePersonen = 0;
+        if (data.personen) {
+          const vorherP = PIANISTEN.length, vorherD = DIRIGENTEN.length;
+          const neuPianisten = mergeNamenListe(PIANISTEN, data.personen.pianisten);
+          const neuDirigenten = mergeNamenListe(DIRIGENTEN, data.personen.dirigenten);
+          PIANISTEN.length = 0; PIANISTEN.push(...neuPianisten);
+          DIRIGENTEN.length = 0; DIRIGENTEN.push(...neuDirigenten);
+          neuePersonen = (PIANISTEN.length - vorherP) + (DIRIGENTEN.length - vorherD);
+          if (neuePersonen > 0) savePersonen();
+        }
+
+        let neueAbwesenheiten = 0;
+        if (Array.isArray(data.abwesenheiten)) {
+          const bekanntAbwesenheitId = new Set(ABWESENHEITEN.map(a => a.id));
+          data.abwesenheiten.forEach(a => {
+            if (a.id && !bekanntAbwesenheitId.has(a.id)) { ABWESENHEITEN.push(a); bekanntAbwesenheitId.add(a.id); neueAbwesenheiten++; }
+          });
+          if (neueAbwesenheiten > 0) saveAbwesenheiten();
+        }
+
+        document.getElementById('d_status').textContent = `${added} Eintragungen, ${neueLieder} eigene Lieder, ${neueProben} Proben, ${neueThemen} Zusatzthemen, ${neuePersonen} Personen und ${neueAbwesenheiten} Abwesenheiten importiert (Duplikate übersprungen).`;
         refreshNachExternerDatenladung();
       } catch (err) {
         document.getElementById('d_status').textContent = 'Fehler beim Import: ' + err.message;
@@ -1747,11 +2212,7 @@
   document.getElementById('fs_unlink').addEventListener('click', unlinkFile);
 
   // ---------- init ----------
-  populateNameDropdown('e_pianist', PIANISTEN, '(kein Klavierspieler)');
-  populateNameDropdown('p_pianist', PIANISTEN, '(kein Klavierspieler)');
-  populateNameDropdown('e_dirigent', DIRIGENTEN, '(kein Dirigent)');
-  populateNameDropdown('p_dirigent', DIRIGENTEN, '(kein Dirigent)');
-  populateNameDropdown('p_einsingen', DIRIGENTEN, '(kein Einsingen erfasst)');
+  refreshPersonenDropdowns();
   populateNeuThemaDropdown();
   updateNeuFieldVisibility();
   populateLiedDropdownFuerThemen();
