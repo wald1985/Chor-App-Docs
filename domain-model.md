@@ -40,6 +40,13 @@ to avoid repeating it everywhere, not because it's optional.
   internally carries a `tokenVersion` counter so a password change/reset
   invalidates other outstanding sessions — an implementation detail, not
   something other capabilities need to know about.
+- **CommunityPermission** — value object / enum, hardcoded set (MVP),
+  first value `PEOPLE_MANAGE`. Stored per `CommunityMembership` (granted
+  set, default empty) and set by the Administrator; `ADMINISTRATOR`
+  implicitly holds all. Gates changes only — every member reads all data.
+  Community-scoped requests use `/communities/:communityId/...`. See
+  `decisions/0007-community-scoped-requests-and-permissions.md` and
+  `openspec/changes/add-community-access-control`.
 - **No `MusicalGroup`/ensemble layer** — considered and deliberately
   deferred (see ADR 0003): one Community *is* one musical group (choir or
   orchestra); an organization running a second ensemble creates a second
@@ -80,9 +87,13 @@ to avoid repeating it everywhere, not because it's optional.
 - **SungSongEntry** — value object, reused inside both Rehearsal (as a
   list item) and Performance: references a Song, a Person as pianist, a
   Person as conductor, plus a note.
-- **Person** — entity. Shared identity for both the Pianist and Conductor
-  roles (UI: *Klavierspieler*, *Dirigent*) — a Person can hold either or
-  both — decided over keeping these as free text, specifically so
+- **Person** — entity, **own bounded context People** (not part of the
+  log; see `openspec/changes/add-people`). Shared identity for both the
+  Pianist and Conductor roles (UI: *Klavierspieler*, *Dirigent*) — a
+  Person holds a non-empty set of `PersonRole` (`PIANIST`, `CONDUCTOR`,
+  hardcoded enum for the MVP), either or both. Name unique per Community
+  (case-insensitive, incl. archived). Never hard-deleted: `archivedAt`
+  hides it from selection while history keeps the reference — decided over keeping these as free text, specifically so
   Reporting aggregates correctly and doesn't fragment on spelling
   variants. Known instances today: Paul, Alex, Daniel — but modeled as
   data, not a hardcoded enum, so people can be added/removed later.
@@ -131,8 +142,8 @@ flow (ADR 0003, not yet built).
   domain layer, the DB layer, or both.
 - Whether `Performance` should literally reuse the `SungSongEntry` value
   object type or just share its shape.
-- Invite email mechanics and role granularity beyond Admin/member (see ADR
-  0003). Auth mechanism itself is decided — email+password, JWT bearer
+- Invite email mechanics (see ADR 0003). Role granularity: decided as
+  per-member permissions, ADR 0007. Auth mechanism itself is decided — email+password, JWT bearer
   token, see `decisions/0004-auth-mechanism.md`.
 - Localization mechanism for the German UI (hardcoded strings vs. an i18n
   layer) — see `glossary.md`.

@@ -40,7 +40,10 @@ context: |
   it before naming anything in a spec, design.md, or code — do not
   translate ad hoc, and do not write German identifiers in code. This
   supersedes an earlier "keep German terms in code" instruction from
-  initial project setup.
+  initial project setup. Exception (decided 2026-09-16): documentation
+  inside chor-app-client and chor-app-server (their docs/ folders, e.g.
+  docs/feature/<feature>/) is written in Russian; code, identifiers and
+  this repo's specs/ADRs stay English.
 
   Cross-cutting technical decisions (stack, tooling, conventions — not tied
   to one capability) are recorded as ADRs in decisions/ in this repo, one
@@ -90,6 +93,11 @@ context: |
       replaced. Client: static Vite bundle on nginx; no `.env` on the
       host — the API URL is resolved at runtime from the page's hostname
       (`src/utils/apiConfig.ts`).
+    - decisions/0007-community-scoped-requests-and-permissions.md —
+      Community-scoped endpoints live under /communities/:communityId/...,
+      guarded by membership; hardcoded CommunityPermission set granted per
+      MEMBER by the Administrator (ADMINISTRATOR holds all); permissions
+      gate changes only.
 
   Domain glossary (German UI term -> English domain/code name; see
   glossary.md for the full table and maintenance rule):
@@ -148,8 +156,8 @@ context: |
   Open architecture decisions not yet made (do not assume an answer —
   surface these as questions or explicit decisions in proposals that touch
   them, and record the outcome as a new ADR in decisions/): invite email
-  mechanics (token/expiry/resend — channel itself is decided: email), role
-  granularity beyond Administrator/member, hosting, SMTP server details
+  mechanics (token/expiry/resend — channel itself is decided: email),
+  hosting, SMTP server details
   (self-hosted vs. relay/provider), chor-app-server's precise
   bounded-context boundaries, and the client's localization mechanism for
   the German UI (hardcoded strings vs. an i18n layer). Auth mechanism

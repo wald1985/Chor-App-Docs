@@ -12,6 +12,10 @@ specified here:
 These three repos are kept **deliberately separate** (no monorepo). Do not
 propose merging them.
 
+## Development process
+All work follows the four-phase process in `development-process.md`
+(Research → Design → Planning → Implementation, with quality gates).
+
 ## Where things live
 - `openspec/config.yaml` — full product/domain context (song collections,
   Performance/Rehearsal/WarmUp logic, open architecture questions).
@@ -30,6 +34,10 @@ propose merging them.
   read them before writing a spec that covers what they already do.
 - `domain-model.md` — draft domain entities/value objects by candidate
   bounded context. Living reference, feeds each capability's design.md.
+- `capability-breakdown.md` — proposed split into loosely coupled
+  capabilities, dependencies and implementation order.
+- `legacy-app-feature-gap.md` — legacy app features (from
+  `RELEASE-NOTES-chor-app.txt`) not yet covered by `domain-model.md`.
 
 
 ## Workflow

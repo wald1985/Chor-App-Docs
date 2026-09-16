@@ -20,4 +20,6 @@ deviate from it.
 - `0006-deployment-as-implemented.md` — the working deploy pipeline of
   both repos (host layout, secrets, config, client API URL resolution)
   and its known issues
+- `0007-community-scoped-requests-and-permissions.md` — `/communities/:communityId/...`
+  routing, membership guard, hardcoded per-member permissions
 

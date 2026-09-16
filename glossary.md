@@ -6,6 +6,11 @@ development is English** — entity/class/field names, API, specs, ADRs,
 code comments. This supersedes the project's earlier "keep German terms
 in code" instruction from initial setup.
 
+**Exception (decided 2026-09-16):** documentation inside `chor-app-client`
+and `chor-app-server` (`docs/`, e.g. `docs/feature/<feature>/`) is written
+in **Russian**, using the English domain names from this table for domain
+terms. Code and this repo's specs/ADRs stay English.
+
 This file is the single source of truth for the mapping. Don't invent an
 alternate English name for a German term, or vice versa, without updating
 this file first — specs, `domain-model.md`, and code should all agree with
@@ -30,6 +35,10 @@ it.
 | Administrator                          | Administrator                            | same word in both languages |
 | Benutzer / Mitglied                      | User                                       | UI label not finalized between "Benutzer" and "Mitglied" — pick when building the Identity & Community UI |
 | Person                                     | Person                                       | same word in both languages |
+| Rolle (Klavierspieler / Dirigent)          | PersonRole (`PIANIST` / `CONDUCTOR`)         | roles of a Person, combinable, hardcoded set (MVP) |
+| archiviert                                 | archived                                     | a Person removed from active use; never hard-deleted |
+| Berechtigung / Berechtigungen              | Permission / Permissions (`CommunityPermission`) | granted per member by the Administrator, e.g. `PEOPLE_MANAGE` |
+| Mitglieder                                 | Members (`CommunityMembership`)              | members of a Community |
 
 ## Feature / page names (not entities — for UI↔dev traceability only)
 
@@ -37,6 +46,8 @@ it.
 |-------------------|--------------------|
 | Lieder verwalten   | Manage songs        |
 | Themensuche         | Theme search          |
+| Personen verwalten  | Manage people (replaces legacy "Klavierspieler/Dirigenten verwalten") |
+| Berechtigungen verwalten | Manage member permissions |
 
 ## Maintenance rule
 
