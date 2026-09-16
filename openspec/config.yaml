@@ -5,8 +5,8 @@ schema: spec-driven
 context: |
   Product: Chor-App — a repertoire and rehearsal tracker for a German-speaking
   church/community choir. It is being rebuilt from a legacy single-file
-  HTML/Excel tool (still in this repo: chor-app_1.html, chor-app_V2.html,
-  README.md, README_old.md) into a real fullstack web app. Treat those legacy
+  HTML/Excel tool (still in this repo: chor-app_v3.html, README.md,
+  README_old.md) into a real fullstack web app. Treat those legacy
   files as the functional source of truth for business rules until specs
   replace them — read them before writing specs for a capability they cover.
 

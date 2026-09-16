@@ -48,6 +48,7 @@ it.
 | Themensuche         | Theme search          |
 | Personen verwalten  | Manage people (replaces legacy "Klavierspieler/Dirigenten verwalten") |
 | Berechtigungen verwalten | Manage member permissions |
+| Konto               | Account page — own User data, Community memberships, sign out |
 
 ## Maintenance rule
 

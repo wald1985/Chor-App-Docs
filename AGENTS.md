@@ -28,7 +28,7 @@ All work follows the four-phase process in `development-process.md`
 - `openspec/changes/<change-id>/` — in-flight proposals: `proposal.md`,
   `specs/<capability>/spec.md` (delta), `design.md`, `tasks.md`.
 - `openspec/changes/archive/` — completed changes.
-- `chor-app_1.html`, `chor-app_V2.html`, `README.md`, `README_old.md` — the
+- `chor-app_v3.html`, `README.md`, `README_old.md` — the
   **legacy single-file HTML/Excel app** this project replaces. Treat these
   as the functional source of truth for a capability until it has a spec;
   read them before writing a spec that covers what they already do.
