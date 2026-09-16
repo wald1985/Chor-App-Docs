@@ -1,0 +1,78 @@
+CHOR-APP - RELEASE NOTES
+=========================
+Version vom 15.09.2026 - PDF-Export im Verlauf
+(c) Daniel Kröcker
+
+
+NEU IN DIESER VERSION
+----------------------
+PDF-Export: zuletzt gesungene & geprobte Lieder (Tab "Verlauf")
+
+Im Tab "Verlauf" gibt es jetzt eine neue Karte, mit der sich eine
+druckfertige Übersicht für einen frei wählbaren Zeitraum erstellen lässt:
+
+- Von-/Bis-Datum frei wählbar (Standard: letzte 30 Tage bis heute).
+- Abschnitt "Zuletzt gesungen (Vortrag)": Tabelle aller Vortrags-
+  Eintragungen im gewählten Zeitraum, neueste zuerst - mit Datum,
+  Sammlung, Liednummer, Titel, Thema, Klavierspieler, Dirigent und Notiz.
+- Abschnitt "Zuletzt geprobt (Chorprobe)": wie in "Bisherige Proben" nach
+  Proben-Terminen gruppiert, inkl. Einsingen und Proben-Notiz je Termin,
+  neuester Termin zuerst.
+- Klick auf "PDF-Vorschau öffnen" öffnet die fertig formatierte Übersicht
+  in einem neuen Fenster und startet automatisch den Druckdialog des
+  Browsers - dort als Drucker/Ziel "Als PDF speichern" wählen, um die
+  Datei abzulegen.
+
+Hinweis zur Umsetzung: Die App kommt bewusst ohne externe Bibliotheken
+aus (funktioniert komplett offline, eine einzige Datei). Der PDF-Export
+nutzt deshalb den eingebauten Druckdialog des Browsers statt einer
+zusätzlichen PDF-Bibliothek - das ist der Standardweg für PDF-Ausgabe
+ganz ohne zusätzliche Abhängigkeiten.
+
+
+WO ZU FINDEN
+-------------
+Tab "Verlauf" -> Karte "PDF-Export: zuletzt gesungene & geprobte Lieder",
+unterhalb der bestehenden Verlaufstabelle.
+
+
+AUSWIRKUNGEN AUF BESTEHENDE DATEN
+-----------------------------------
+Keine. Es werden keine neuen Datenfelder gespeichert und keine
+bestehenden Daten verändert - der Export liest nur den vorhandenen
+Verlauf (Vortrag/Chorprobe) und die Proben-Termine aus und stellt sie
+für den gewählten Zeitraum dar.
+
+
+GEPRÜFT
+--------
+Automatisiert getestet (Playwright, Chromium headless):
+- Datumsfilterung (Einträge außerhalb des Zeitraums werden korrekt
+  ausgeschlossen).
+- Korrekte Trennung Vortrag / Chorprobe.
+- Proben-Gruppierung inkl. Einsingen und Notiz im Export.
+- Druckdialog wird zuverlässig genau einmal ausgelöst.
+- Keine Konsolenfehler.
+
+
+BEKANNTE EINSCHRÄNKUNG
+------------------------
+Die Excel-Version (Chor-App.xlsx) wurde für dieses Release nicht
+angepasst - der PDF-Export ist eine reine Funktion der Web-App
+(chor-app.html).
+
+
+VORHERIGES RELEASE (ZUM VERGLEICH)
+------------------------------------
+Die direkt vorangegangene Version brachte:
+- Neuer Tab "Verwaltung": Klavierspieler und Dirigenten lassen sich
+  anlegen und löschen; alle betroffenen Dropdowns in der App aktualisieren
+  sich automatisch.
+- Neuer Tab "Abwesenheiten": Abwesenheitskalender für Urlaub/Fehlzeiten
+  von Klavierspielern und Dirigenten, mit "derzeit abwesend"-Kennzeichnung
+  und Volltextsuche.
+- Beide neuen Datenbereiche sind vollständig in Backup-Export/Import und
+  den OneDrive-Dateiabgleich eingebunden.
+
+
+© Daniel Kröcker - Chor-App
