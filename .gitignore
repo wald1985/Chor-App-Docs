@@ -1,1 +1,7 @@
+<<<<<<< HEAD
 .DS_Store
+=======
+# macOS
+.DS_Store
+._*
+>>>>>>> d76ef6b (chore: stop tracking .DS_Store and add .gitignore)
