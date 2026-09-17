@@ -58,6 +58,9 @@ account.
 - Every future protected endpoint in any bounded context authenticates the
   same way: validate the bearer JWT, resolve the `User` it names. This ADR
   is binding for all of `chor-app-server`, not just Identity & Community.
+  **Amended by ADR 0011:** a bearer JWT can now also name a `Superadmin`
+  instead of a `User` — the token's `aud` claim says which, and the two are
+  never interchangeable.
 - Because SMTP is not required for login (only for invites, ADR 0003), this
   auth mechanism does not make every login depend on mail delivery.
 

@@ -108,9 +108,16 @@ context: |
     - decisions/0010-public-book-library.md — one global library of printed
       books, songs and main themes (LibraryModule), live-linked into
       Communities; only a superadmin changes it (/admin/library in
-      LibraryAdminModule behind a placeholder SuperAdminGuard, with usage
+      LibraryAdminModule, guarded per decisions/0011, with usage
       warnings before archiving); hybrid numbering (per book or continuous
       series); uploads parsed once, re-upload updates songs in place.
+    - decisions/0011-superadmin-identity-and-session.md — Superadmin is a
+      separate entity/table from User, all superadmins equal (no permission
+      model), own login (/admin/auth/login) and JWT whose aud claim
+      distinguishes it from a User token; seed script creates/recovers the
+      first superadmin; replaces 0010's placeholder SuperAdminGuard on
+      /admin/library with real guards. Amends 0004 (a token can now name a
+      User or a Superadmin).
 
   Domain glossary (German UI term -> English domain/code name; see
   glossary.md for the full table and maintenance rule):

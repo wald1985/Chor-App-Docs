@@ -35,4 +35,10 @@ deviate from it.
   continuous series); uploads parsed once, re-upload updates in place;
   library main themes delivered with books; superadmin usage warning via
   `LibraryAdminModule`; `/admin/library` behind a placeholder `SuperAdminGuard`
+  *(guard superseded by 0011)*
+- `0011-superadmin-identity-and-session.md` — `Superadmin` as a separate
+  entity/table from `User`, all superadmins equal (no permission model), JWT
+  `aud` claim distinguishes a superadmin session from a user session, seed
+  script creates/recovers the first superadmin, replaces ADR 0010's
+  placeholder `SuperAdminGuard` with real guards
 

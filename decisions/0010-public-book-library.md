@@ -1,7 +1,8 @@
 # 0010: Public book library — global printed editions and main themes, live-linked into Communities
 
 **Status:** Accepted (2026-09-17; revised the same day: live link instead of copy; hybrid numbering;
-library themes; superadmin usage warning)
+library themes; superadmin usage warning). **§6 superseded by ADR 0011 (2026-09-17):** the placeholder
+`SuperAdminGuard` is gone; `/admin/library` requires a real superadmin token.
 **Scope:** chor-app-server (`LibraryModule`, `LibraryAdminModule`; `RepertoireModule` attachments), chor-app-client, `capability-breakdown.md`
 **Related:** ADR 0003, ADR 0007, ADR 0008, ADR 0009, `REPERTOIRE_DESIGN.md` §9 / FR-11 / FR-13 (superseded)
 
@@ -20,7 +21,9 @@ library themes; superadmin usage warning)
 - **Superadmin gets a usage warning** before archiving something Communities use. The warning is composed in
   `LibraryAdminModule`, which imports both `LibraryModule` and `RepertoireModule` — `LibraryModule` itself
   never depends on Repertoire.
-- `/admin/library/...` lives in `LibraryAdminModule` behind a placeholder `SuperAdminGuard`. Reads: any authenticated user.
+- `/admin/library/...` lives in `LibraryAdminModule`, guarded by `SuperadminAuthGuard` (ADR 0011); reads
+  (`GET /library/...`) accept a user *or* superadmin token (`UserOrSuperadminAuthGuard`). The placeholder
+  `SuperAdminGuard` described below (§6) no longer exists.
 - No publication status, `publishedAt` or editions in the MVP.
 
 ## Context
@@ -90,10 +93,14 @@ A book's theme set = the library themes linked to its songs (see Q2 for explicit
   numbers; repeating with `confirm=true` archives. Same data is shown in the upload dry run.
 - Archived items stay resolvable for existing references and are shown as archived; they can't be newly attached.
 
-### 6. Authorization
-- **Read** (`GET /library/...`): any authenticated user (`JwtAuthGuard`).
-- **Write** (`/admin/library/...`): `LibraryAdminModule`, placeholder `SuperAdminGuard` (currently allows every
-  request). The future superadmin capability replaces only the guard.
+### 6. Authorization — superseded by ADR 0011
+*(as originally decided; kept for history)* **Read** (`GET /library/...`): any authenticated user
+(`JwtAuthGuard`). **Write** (`/admin/library/...`): `LibraryAdminModule`, placeholder `SuperAdminGuard`
+(currently allows every request). The future superadmin capability replaces only the guard.
+
+**As implemented (ADR 0011, 2026-09-17):** reads use `UserOrSuperadminAuthGuard` (user or superadmin
+token); writes use `SuperadminAuthGuard` (superadmin token only) — a user token that used to pass the
+placeholder now gets 401 on `/admin/library`.
 
 ### 7. Prototype catalog
 Buch 1–4 → series "Bücher", four volumes (1–163, 164–357, 358–563, 564–727); the prototype's 30 merged themes →
@@ -101,10 +108,11 @@ Buch 1–4 → series "Bücher", four volumes (1–163, 164–357, 358–563, 56
 (ADR 0009 Q8). FR-11 (default 30 themes) and FR-13 (catalog copy) of the draft design are superseded.
 
 ## Consequences
-- Capabilities: **#10 Library** (incl. `LibraryAdminModule` for now), **#11 Superadmin** future.
+- Capabilities: **#10 Library** (incl. `LibraryAdminModule`), **#11 Superadmin** — both implemented (ADR 0011).
 - `chor-app-server/docs/feature/library/` needs research → design → plan; `REPERTOIRE_DESIGN.md` rewritten around
   folders, attachments, two theme sources and live reads.
-- **Accepted risk until superadmin exists:** anyone reaching `/admin/library` changes content for all Communities.
+- **Accepted risk until superadmin exists — closed by ADR 0011:** anyone reaching `/admin/library` used to
+  change content for all Communities with just a user token; a real superadmin token is now required.
 - A wrong library change is immediately wrong everywhere; no per-Community override in MVP.
 - Library ids are part of the contract with Communities.
 
@@ -114,7 +122,7 @@ Buch 1–4 → series "Bücher", four volumes (1–163, 164–357, 358–563, 56
 | Q1 | Names and German UI terms (`LibraryModule`, `LibraryBook`, `LibrarySeries`, `LibraryTheme`, *Bibliothek*) → `glossary.md` | open |
 | Q2 | "Theme sets": one global list of main themes, or explicit sets per book/series (themes without songs included)? | global list, book set derived from its songs |
 | Q3 | First upload formats and file schema (one book per file or several) | open |
-| Q4 | Until superadmin: must `/admin/library` require a valid JWT? Deploy to production or keep disabled by a flag? | open |
+| Q4 | Until superadmin: must `/admin/library` require a valid JWT? Deploy to production or keep disabled by a flag? | **closed by ADR 0011** — superadmin now exists; `/admin/library` requires a superadmin token |
 | Q5 | Do Communities get notified about library changes? | not in MVP |
 | Q6 | Changing a library song's number: edit (keep id) or archive + new song? On upload a changed number looks like a new song | edit via admin UI keeps id; upload treats it as new + archived |
 

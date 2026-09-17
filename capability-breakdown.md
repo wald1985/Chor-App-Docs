@@ -22,8 +22,8 @@ NestJS module (ADR 0002). Coupling rule: capabilities reference each other
 | 7 | **Performance Log** (UI: *Vortrag*) | standalone performances | `songId`, `personId`; independent of #6 |
 | 8 | **Reporting / History** (UI: *Auswertung*, *Verlauf*) | statistics, "not sung for a while", date-range PDF export | read-only over #5–7 |
 | 9 | **Legacy Import** | one-off import from the legacy backup / Excel | writes into #3–7; obsolete after migration |
-| 10 | **Library** | global library of printed books (`LibrarySeries`, `LibraryBook`, `LibrarySong`, `LibraryTheme`), hybrid numbering, upload CSV/Excel/JSON, live for all Communities; `LibraryAdminModule` with usage warnings (ADR 0010) | #1 (auth); management by #11 |
-| 11 | **Superadmin** *(future)* | platform-level role, own profile, admin panel, admin endpoints and guards | #1; until built, #10 write endpoints are open |
+| 10 | **Library** | global library of printed books (`LibrarySeries`, `LibraryBook`, `LibrarySong`, `LibraryTheme`), hybrid numbering, upload CSV/Excel/JSON, live for all Communities; `LibraryAdminModule` with usage warnings (ADR 0010) | #1 (auth); write endpoints guarded by #11 (ADR 0011) |
+| 11 | **Superadmin** | separate platform-admin identity (own table, own login, `aud`-typed JWT — ADR 0011), self-management of other superadmins, seed script; guards #10's write endpoints. Server implemented (2026-09-17); admin panel client is a separate future iteration | #1 (shares `JWT_SECRET`/JWT machinery only) |
 
 ## Open points
 - **Rehearsal + Performance as one or two capabilities.** They share

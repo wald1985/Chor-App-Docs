@@ -39,6 +39,7 @@ it.
 | archiviert                                 | archived                                     | a Person removed from active use; never hard-deleted |
 | Berechtigung / Berechtigungen              | Permission / Permissions (`CommunityPermission`) | granted per member by the Administrator, e.g. `PEOPLE_MANAGE` |
 | Mitglieder                                 | Members (`CommunityMembership`)              | members of a Community |
+| *(not decided)*                            | Superadmin (`Superadmin`)                    | platform-admin identity, separate from User (ADR 0011); German UI term deferred to the admin-panel client iteration |
 
 ## Feature / page names (not entities — for UI↔dev traceability only)
 
