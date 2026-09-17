@@ -98,6 +98,19 @@ context: |
       guarded by membership; hardcoded CommunityPermission set granted per
       MEMBER by the Administrator (ADMINISTRATOR holds all); permissions
       gate changes only.
+    - decisions/0009-repertoire-folders-attachments-themes.md — a
+      Community's repertoire = attached library books (read-only, live) +
+      its own Folders (Mappe: several per Community, custom songs, isNew,
+      editable with REPERTOIRE_MANAGE); Community custom themes can be
+      attached to any song; other features resolve songs only via
+      Repertoire's SongLookup port. Supersedes the Books/Folder/NewSongs
+      collections described below.
+    - decisions/0010-public-book-library.md — one global library of printed
+      books, songs and main themes (LibraryModule), live-linked into
+      Communities; only a superadmin changes it (/admin/library in
+      LibraryAdminModule behind a placeholder SuperAdminGuard, with usage
+      warnings before archiving); hybrid numbering (per book or continuous
+      series); uploads parsed once, re-upload updates songs in place.
 
   Domain glossary (German UI term -> English domain/code name; see
   glossary.md for the full table and maintenance rule):
@@ -109,6 +122,8 @@ context: |
     - Conductor (Dirigent)
     - Pianist (Klavierspieler)
     - Theme (Thema/Themen)        - topic tag(s) attached to a song
+    - NOTE: the three-collection model below is superseded by ADR 0009
+      (Folders, attached library books, isNew flag) and ADR 0010 (library).
     - Books / Folder / NewSongs (Buecher / Mappe / Neue Lieder) — the three
       independent song collections (see below)
     - Community (Gemeinschaft)    - a tenant: one choir/group and

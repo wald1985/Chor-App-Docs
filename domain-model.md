@@ -59,6 +59,14 @@ to avoid repeating it everywhere, not because it's optional.
 
 ## Repertoire (song catalog)
 
+> **Outdated — superseded by `decisions/0009-repertoire-folders-attachments-themes.md` and
+> `decisions/0010-public-book-library.md` (2026-09-17).** `SongCollectionType`
+> and NewSongs are gone; printed editions live in a global library and are
+> attached read-only, Mappe is a Community `Folder` entity (several allowed),
+> themes come from the library and from the Community,
+> "new song" is an `isNew` flag. Follow the ADRs; this section is rewritten when the
+> Repertoire design is accepted.
+
 - **Song** (UI: *Lied*) — entity, aggregate root. Identity: `(collection,
   number)` — numbering is independent per collection (Books 1-727
   continuous across 4 books, Folder its own 1-115, NewSongs free/

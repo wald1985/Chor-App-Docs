@@ -22,4 +22,17 @@ deviate from it.
   and its known issues
 - `0007-community-scoped-requests-and-permissions.md` — `/communities/:communityId/...`
   routing, membership guard, hardcoded per-member permissions
+- `0008-modular-monolith-boundaries.md` — one top-level NestJS module per
+  feature/bounded context, registered in `AppModule`; cross-module access
+  only through a module's own exports, never deep imports into another
+  module's internals
+- `0009-repertoire-folders-attachments-themes.md` — Community repertoire =
+  attached library books (read-only, live) + own Folders (*Mappe*, several,
+  editable, `isNew`); custom Community themes on any song; `SongLookup` port;
+  `SongCollectionType`/NewSongs removed
+- `0010-public-book-library.md` — global library of printed editions in its
+  own module, live-linked into Communities; hybrid numbering (per book or
+  continuous series); uploads parsed once, re-upload updates in place;
+  library main themes delivered with books; superadmin usage warning via
+  `LibraryAdminModule`; `/admin/library` behind a placeholder `SuperAdminGuard`
 

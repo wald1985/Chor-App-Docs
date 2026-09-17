@@ -1,6 +1,13 @@
 # Brainstorm: Repertoire — books, numbering, legacy import
 
 **Date:** 2026-09-16
+**Update 2026-09-17:** partly resolved by `decisions/0009-repertoire-folders-attachments-themes.md`
+(Book kinds; printed editions read-only, collections editable) and
+`decisions/0010-public-book-library.md` (global library, live link, hybrid
+numbering — resolves Q1/Q2 and Models A/B: both, via optional series).
+Q3 resolved (Mappe = Community Folder, several). Still open here: Q4–Q6,
+legacy backup import shape. Note: "everything
+editable" in §1 now applies to collection songs only.
 **Status:** open brainstorm. Not a decision record, not a design. It exists
 because `chor-app-server/docs/feature/repertoire/REPERTOIRE_DESIGN.md` cannot
 be finalized until the open questions below are answered.

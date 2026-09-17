@@ -17,11 +17,13 @@ NestJS module (ADR 0002). Coupling rule: capabilities reference each other
 | 1a | **Community Access** | `/communities/:communityId/...` guard, hardcoded per-member permissions set by the Administrator (ADR 0007) | #1 |
 | 3 | **People** (UI: *Verwaltung*) | `Person` with combinable hardcoded roles (PIANIST/CONDUCTOR), archive instead of delete | #1a (`PEOPLE_MANAGE`) |
 | 4 | **Absences** (UI: *Abwesenheiten*) | absence calendar, "currently absent" flag, search | `personId` |
-| 5 | **Repertoire** | `Song`, collections (Books/Folder/NewSongs), `Theme` | `communityId` |
+| 5 | **Repertoire** | Folders (*Mappe*, several, custom songs, `isNew`), attachments of library books, custom `Theme`s on any song, `SongLookup` port (ADR 0009) | `communityId`, #10 via read port |
 | 6 | **Rehearsal Log** (UI: *Chorprobe*) | rehearsals, WarmUp, sung-song entries with pianist/conductor | `songId`, `personId` |
 | 7 | **Performance Log** (UI: *Vortrag*) | standalone performances | `songId`, `personId`; independent of #6 |
 | 8 | **Reporting / History** (UI: *Auswertung*, *Verlauf*) | statistics, "not sung for a while", date-range PDF export | read-only over #5–7 |
 | 9 | **Legacy Import** | one-off import from the legacy backup / Excel | writes into #3–7; obsolete after migration |
+| 10 | **Library** | global library of printed books (`LibrarySeries`, `LibraryBook`, `LibrarySong`, `LibraryTheme`), hybrid numbering, upload CSV/Excel/JSON, live for all Communities; `LibraryAdminModule` with usage warnings (ADR 0010) | #1 (auth); management by #11 |
+| 11 | **Superadmin** *(future)* | platform-level role, own profile, admin panel, admin endpoints and guards | #1; until built, #10 write endpoints are open |
 
 ## Open points
 - **Rehearsal + Performance as one or two capabilities.** They share
