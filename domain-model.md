@@ -57,27 +57,29 @@ to avoid repeating it everywhere, not because it's optional.
   sharing repertoire/stats across ensembles becomes a confirmed real
   need.
 
-## Repertoire (song catalog)
+## Library (global printed book catalog — ADR 0010)
 
-> **Outdated — superseded by `decisions/0009-repertoire-folders-attachments-themes.md` and
-> `decisions/0010-public-book-library.md` (2026-09-17).** `SongCollectionType`
-> and NewSongs are gone; printed editions live in a global library and are
-> attached read-only, Mappe is a Community `Folder` entity (several allowed),
-> themes come from the library and from the Community,
-> "new song" is an `isNew` flag. Follow the ADRs; this section is rewritten when the
-> Repertoire design is accepted.
+Global, tenant-independent catalog maintained centrally by superadmins (`LibraryModule`). Communities attach books via `BookAttachment` (read-only live link).
 
-- **Song** (UI: *Lied*) — entity, aggregate root. Identity: `(collection,
-  number)` — numbering is independent per collection (Books 1-727
-  continuous across 4 books, Folder its own 1-115, NewSongs free/
-  user-assigned). Attributes: title, its Themes.
-- **SongCollectionType** — value object / enum: `Books | Folder |
-  NewSongs` (UI: *Bücher / Mappe / Neue Lieder*). Not an entity — fixed
-  set of three, no independent lifecycle, but each has different rules
-  (only Books participates in the cross-book theme search).
-- **Theme** (UI: *Thema*) — entity, not a bare string: themes are created
-  ad hoc and reused everywhere afterward, so they need stable identity to
-  avoid near-duplicate spellings drifting apart. Many-to-many with Song.
+- **LibrarySeries** — entity, aggregate root: `title`, `titleKey` (unique, lowercase), `archivedAt`. Groups volumes of a continuous book series (e.g. "Bücher").
+- **LibraryBook** — entity, aggregate root: `title`, `titleKey`, optional `seriesId` and `volume`. Numbering scope: continuous across a series (`numberScopeId = seriesId`) or standalone (`numberScopeId = id`).
+- **LibrarySong** — entity, aggregate root: `bookId`, `numberScopeId`, `number`, `numberKey`, `sortKey`, `title`, optional `author` and `arranger`, `archivedAt`. Associated with canonical `LibraryTheme`s.
+- **LibraryTheme** — entity, aggregate root: `name`, `nameKey` (unique), `archivedAt`. Global canonical themes delivered with printed editions.
+- **LibrarySongTheme** — join entity: links `LibrarySong` and `LibraryTheme`.
+
+## Repertoire (Community-scoped song catalog — ADR 0009)
+
+A Community's repertoire consists of **attached library books** (read-only, live) + **its own folders** (`RepertoireModule`).
+
+- **BookAttachment** — entity: `communityId`, `libraryBookId`, `archivedAt`. Live link to a `LibraryBook`; never duplicates song rows in the database.
+- **Folder** (UI: *Mappe*) — entity, aggregate root: `communityId`, `title`, `titleKey`, `archivedAt`. A Community can have multiple folders (e.g. "Mappe", "Weihnachten 2026", "Jugendchor"). Fully editable by members with `REPERTOIRE_MANAGE`.
+- **FolderSong** — entity, aggregate root: `communityId`, `folderId`, `number`, `numberKey`, `sortKey`, `title`, optional `author`, `arranger`, `isNew` (boolean flag for recent songs), `archivedAt`.
+- **Theme** (UI: *Thema*, Community custom theme) — entity, aggregate root: `communityId`, `name`, `nameKey`, `archivedAt`. Custom themes created within a Community.
+- **SongThemeAssignment** — entity: `communityId`, `songId` (either a `FolderSong` or a `LibrarySong` visible in this Community), `themeSource` (`COMMUNITY` | `LIBRARY`), `themeId`. Allows assigning custom themes or library themes to any visible song.
+
+## Superadmin (platform administration — ADR 0011)
+
+- **Superadmin** — entity, aggregate root (`superadmins` table): `id`, `email` (unique), `name`, `passwordHash`, `tokenVersion`. Completely separate from `User`. Issues JWT tokens with `aud: "chor-app-superadmin"`. Manages platform-wide data, catalog imports, and fellow superadmins.
 
 ## Rehearsal & performance log
 

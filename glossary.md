@@ -26,30 +26,38 @@ it.
 | Einsingen               | WarmUp                    | warm-up portion of a Rehearsal; has its own leader |
 | Dirigent                 | Conductor                  | a role a Person can hold |
 | Klavierspieler            | Pianist                      | a role a Person can hold |
-| Thema / Themen             | Theme / Themes                | |
-| Bücher (Buecher)             | Books                           | one of the three song-collection types |
-| Mappe                          | Folder                            | one of the three song-collection types — decided (not a literal "binder"/"portfolio" translation) |
-| Neue Lieder                      | NewSongs                            | one of the three song-collection types |
-| Auswertung                         | Report                                | reporting/statistics; no entities of its own |
-| Gemeinschaft                         | Community                              | the tenant — decided 2026-09-15; domain/code always says "Community", UI shows "Gemeinschaft" |
-| Administrator                          | Administrator                            | same word in both languages |
-| Benutzer / Mitglied                      | User                                       | UI label not finalized between "Benutzer" and "Mitglied" — pick when building the Identity & Community UI |
-| Person                                     | Person                                       | same word in both languages |
-| Rolle (Klavierspieler / Dirigent)          | PersonRole (`PIANIST` / `CONDUCTOR`)         | roles of a Person, combinable, hardcoded set (MVP) |
-| archiviert                                 | archived                                     | a Person removed from active use; never hard-deleted |
-| Berechtigung / Berechtigungen              | Permission / Permissions (`CommunityPermission`) | granted per member by the Administrator, e.g. `PEOPLE_MANAGE` |
-| Mitglieder                                 | Members (`CommunityMembership`)              | members of a Community |
-| *(not decided)*                            | Superadmin (`Superadmin`)                    | platform-admin identity, separate from User (ADR 0011); German UI term deferred to the admin-panel client iteration |
+| Thema / Themen             | Theme / Themes                | Community custom theme or library theme |
+| Bibliothek / Liederbuch-Katalog | Library                 | global catalog of printed editions (ADR 0010) |
+| Serie                        | LibrarySeries             | series grouping book volumes (e.g. "Bücher") |
+| Gedrucktes Liederbuch / Buch | LibraryBook               | printed book in global library |
+| Hauptthema                   | LibraryTheme              | canonical theme delivered with library books |
+| Buch-Verknüpfung             | BookAttachment            | live attachment of a LibraryBook to a Community (ADR 0009) |
+| Mappe                        | Folder                    | Community-owned custom folder entity; several allowed |
+| Mappen-Lied                  | FolderSong                | custom song inside a Folder; supports `isNew` |
+| Neu (Kennzeichnung)          | isNew                     | flag for recent folder songs |
+| Auswertung                   | Report                    | reporting/statistics; no entities of its own |
+| Gemeinschaft                 | Community                 | the tenant — domain/code always says "Community", UI shows "Gemeinschaft" |
+| Administrator                | Administrator             | same word in both languages |
+| Benutzer / Mitglied          | User                      | account entity |
+| Person                       | Person                    | performer identity (pianist/conductor) |
+| Rolle (Klavierspieler / Dirigent) | PersonRole (`PIANIST` / `CONDUCTOR`) | roles of a Person, combinable, hardcoded set (MVP) |
+| archiviert                   | archived                  | soft-deleted / hidden from active selection |
+| Berechtigung / Berechtigungen | Permission / Permissions (`CommunityPermission`) | granted per member by the Administrator, e.g. `PEOPLE_MANAGE` |
+| Mitglieder                   | Members (`CommunityMembership`) | members of a Community |
+| Superadmin                   | Superadmin (`Superadmin`) | platform-admin identity, separate from User (ADR 0011) |
 
 ## Feature / page names (not entities — for UI↔dev traceability only)
 
 | German (UI)      | English reference |
 |-------------------|--------------------|
+| Liederbuch-Katalog | Catalog modal / browser |
+| Feedback geben   | Feedback modal (stub) |
 | Lieder verwalten   | Manage songs        |
 | Themensuche         | Theme search          |
 | Personen verwalten  | Manage people (replaces legacy "Klavierspieler/Dirigenten verwalten") |
 | Berechtigungen verwalten | Manage member permissions |
 | Konto               | Account page — own User data, Community memberships, sign out |
+| Superadmin Login / Verwaltung | Superadmin panel (`/admin/*`) |
 
 ## Maintenance rule
 

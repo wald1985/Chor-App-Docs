@@ -1,126 +1,127 @@
-CHOR-APP - README
-==================
-Stand: September 2026
-(c) Daniel Kröcker
+# Chor-App — Центральная документация проекта
 
+**Chor-App** — веб-платформа для управления репертуаром, расписанием репетиций и выступлений церковных и академических хоров.
 
-WAS IST DAS?
-------------
-Die Chor-App ist ein einzelnes, eigenständiges HTML-Dokument (chor-app.html),
-das im Browser läuft (Chrome oder Edge empfohlen). Es braucht keine
-Installation, keinen Server und keine Internetverbindung - Doppelklick auf
-die Datei genügt. Daneben gibt es eine inhaltlich gleichwertige Excel-Version
-(Chor-App.xlsx) für alle, die lieber in Excel arbeiten.
+Проект заменяет исторический одностраничный прототип на HTML/JS/Excel ([`chor-app_v3.html`](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/chor-app_v3.html)) современной клиент-серверной архитектурой с поддержкой многопользовательского режима, изоляции сообществ (мультитенантности) и глобального каталога печатных изданий.
 
-Verwaltet werden drei unabhängige Liedersammlungen, der Probenverlauf
-(Vortrag/Chorprobe) inkl. gruppierter Chorproben mit Einsingen, sowie freie
-Themenzuordnungen zu jedem Lied.
+---
 
+## 1. Архитектура репозиториев (Трио проектов)
 
-DATEIEN IN DIESEM PAKET
-------------------------
-- chor-app.html          Die App selbst. Einfach im Browser öffnen.
-- Chor-App.xlsx           Excel-Version mit denselben Funktionen (Formeln,
-                          Dropdowns, Auswertungen).
-- Anleitung-Chor-App-Verknuepfung.docx
-                          Schritt-für-Schritt-Anleitung, wie man die
-                          gemeinsame Datendatei über OneDrive mit der App
-                          verknüpft (für die Nutzung durch mehrere Personen).
-- README.txt              Dieses Dokument.
+Проект разделён на три независимых репозитория, расположенных в одной родительской директории:
 
+```
+apps/chor_app/
+├── chor-app-docs/    # Этот репозиторий: архитектура, спецификации, ADR, глоссарий, OpenSpec
+├── chor-app-client/  # Клиентское приложение: React 19, Redux Toolkit, TanStack Query, React-Bootstrap
+└── chor-app-server/  # Бэкенд API: NestJS 11, Prisma ORM, PostgreSQL, Passport JWT
+```
 
-DIE DREI LIEDERSAMMLUNGEN
---------------------------
-1. Buecher       Bücher 1-4, fortlaufend nummeriert 1-727, mit Themen
-                  (bücherübergreifend zusammengeführt).
-2. Mappe          Eigene, unabhängige Nummerierung, 115 Lieder als
-                  Grunddaten, ohne feste Themenzuordnung.
-3. Neue Lieder   Vollständig eigene, freie Sammlung - komplett von dir
-                  selbst angelegt und nummeriert, unabhängig von den
-                  beiden anderen Sammlungen.
+| Репозиторий | Назначение | Технологический стек |
+|---|---|---|
+| **`chor-app-docs`** | Спецификации требований, архитектурные решения (ADR), доменная модель | Markdown, OpenSpec, Mermaid |
+| **`chor-app-client`** | SPA-клиент для пользователей и суперадминистраторов | React 19, TypeScript, Redux Toolkit, TanStack React Query v5, Bootstrap 5.3, Vite |
+| **`chor-app-server`** | Модульный монолит REST API | NestJS 11, TypeScript, Prisma 7, PostgreSQL 16, JWT, Bcrypt |
 
-Alle drei Sammlungen lassen sich in "Lieder verwalten" um weitere,
-selbst eingetragene Lieder ergänzen.
+---
 
+## 2. Карта документации (Sitemap)
 
-HAUPTFUNKTIONEN DER APP (REITER)
----------------------------------
+Все документы в этом репозитории поддерживаются в актуальном состоянии:
 
-Vortrag / Chorprobe (Eintragen)
-   Trage ein, welches Lied wann gesungen wurde: Datum, Sammlung, Nummer,
-   Klavierspieler, Dirigent, Notiz. Titel und Thema werden automatisch
-   nachgeschlagen.
+### Архитектура и принятые решения
+* **[`decisions/README.md`](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/decisions/README.md)** — Реестр архитектурных решений (ADR 0001 — ADR 0011):
+  * [ADR 0001](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/decisions/0001-client-stack.md): Стек клиента (React, Redux, React Query).
+  * [ADR 0002](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/decisions/0002-server-stack.md): Стек сервера и принципы Domain-Driven Design (DDD).
+  * [ADR 0003](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/decisions/0003-multi-tenancy-identity.md): Мультитенантность и модель `Community` / `User`.
+  * [ADR 0004](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/decisions/0004-auth-mechanism.md): Аутентификация email + пароль, JWT сессии.
+  * [ADR 0006](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/decisions/0006-deployment-as-implemented.md): Деплой, окружение VPS и Docker Compose.
+  * [ADR 0007](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/decisions/0007-community-scoped-requests-and-permissions.md): Маршрутизация `/communities/:id/...` и права участников.
+  * [ADR 0008](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/decisions/0008-modular-monolith-boundaries.md): Границы модулей и запрет глубоких кросс-импортов.
+  * [ADR 0009](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/decisions/0009-repertoire-folders-attachments-themes.md): Репертуар Community, `BookAttachment`, папки `Folder` (*Mappe*), кастомные темы.
+  * [ADR 0010](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/decisions/0010-public-book-library.md): Глобальная библиотека печатных книг (`LibraryModule`), импорт, гибридная нумерация.
+  * [ADR 0011](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/decisions/0011-superadmin-identity-and-session.md): Изолированная модель суперадминистратора (`Superadmin`), аутентификация и guard'ы.
 
-   Chorprobe ist als Sitzung organisiert: Du legst zuerst eine "Probe" mit
-   Datum an, wählst das "Einsingen" (zur Auswahl stehen die bekannten
-   Dirigenten Paul, Alex, Daniel) und kannst optional eine Notiz
-   hinterlegen. Danach trägst du die gesungenen Lieder dieser Probe
-   nacheinander ein. In "Bisherige Proben" siehst du alle Proben gruppiert
-   mit ihren jeweiligen Liedern, durchsuchbar nach Titel, Nummer,
-   Klavierspieler, Dirigent oder Einsingen.
+### Модели и предметная область
+* **[`domain-model.md`](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/domain-model.md)** — Полное описание сущностей, агрегатов и Value Objects по ограниченным контекстам (Bounded Contexts).
+* **[`glossary.md`](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/glossary.md)** — Официальный двуязычный глоссарий (немецкий UI ↔ английский код/домен).
+* **[`capability-breakdown.md`](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/capability-breakdown.md)** — Карта всех возможностей платформы, их зависимости и текущий статус реализации.
 
-Themensuche
-   Durchsucht die Bücher-Sammlung nach Thema und/oder per Suchfeld nach
-   Titel ODER Liednummer. Mappe und Neue Lieder haben eigene, separate
-   Suchfelder (ohne Themenfilter, da sie bewusst getrennt von der
-   bücherübergreifenden Themensuche gehalten werden).
+### Процессы разработки и стандарты качества
+* **[`development-process.md`](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/development-process.md)** — 4-фазный процесс разработки:
+  1. Исследование (*Research*)
+  2. Архитектурный дизайн (*Design*)
+  3. План реализации (*Planning*)
+  4. Последовательное выполнение (*Implementation*) с прохождением Quality Gates (G1–G8).
+* **[`AGENTS.md`](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/AGENTS.md)** — Правила и инструкции для ИИ-агентов.
 
-Lieder verwalten
-   Hier fügst du neue Lieder zu einer der drei Sammlungen hinzu.
-   Zusätzlich kannst du hier jedem bereits bestehenden Lied (aus allen drei
-   Sammlungen) über ein Dropdown ein weiteres Thema zuordnen - entweder aus
-   der Liste bestehender Themen oder als frei eingetippter, ganz neuer
-   Themenname. Neue Themen werden danach überall in der Themensuche
-   automatisch mit angeboten (gekennzeichnet als "eigenes Thema").
+### Исторические материалы и прототип
+* **[`chor-app_v3.html`](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/chor-app_v3.html)** — Исходный рабочий прототип (содержит 727 песен, 4 тома книг, 30 тем).
+* **[`README_legacy_prototype.md`](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/README_legacy_prototype.md)** — Историческое описание прототипа от автора (Daniel Kröcker).
+* **[`legacy-app-feature-gap.md`](file:///Users/alex/Desktop/apps/chor_app/chor-app-docs/legacy-app-feature-gap.md)** — Сопоставление функций прототипа с целевой системой.
 
-Auswertung
-   Zeigt, wie oft jedes Lied insgesamt, im Vortrag und in der Chorprobe
-   gesungen wurde, sowie separate Auswertungen für Klavierspieler und
-   Dirigenten.
+---
 
-Daten & Backup
-   - Export/Import als Backup-Datei.
-   - Lokale Datei verknüpfen: Verbindet die App dauerhaft mit einer Datei
-     auf der Festplatte (bzw. in einem geteilten OneDrive-Ordner), sodass
-     mehrere Personen dieselben Daten gemeinsam nutzen können. Vor jedem
-     Speichern und automatisch alle 20 Sekunden wird die Datei eingelesen
-     und mit dem eigenen Stand zusammengeführt (additiv, siehe Hinweis
-     unten). Details dazu in der separaten Anleitung
-     "Anleitung-Chor-App-Verknuepfung.docx".
+## 3. Статус реализации системы
 
+```mermaid
+flowchart TD
+  subgraph Implemented["Реализовано (Done)"]
+    Id["1. Identity & Community<br/>(мультитенантность, auth, роли)"]
+    Notif["2. Notifications<br/>(email сервис)"]
+    CommAcc["1a. Community Access<br/>(права доступа участников)"]
+    Lib["10. Library (Каталог)<br/>(серии, книги, 727 песен, 30 тем, импорт)"]
+    SA["11. Superadmin<br/>(платформенные админы, изоляция прав)"]
+    Shell["Client Shell & Dashboard<br/>(адаптивный хедер, TabNav, модалки)"]
+  end
 
-WO WERDEN DIE DATEN GESPEICHERT?
-----------------------------------
-Standardmäßig: im localStorage des Browsers, in dem die App geöffnet ist -
-rein lokal auf diesem Gerät, nicht automatisch mit anderen geteilt.
+  subgraph NextUp["В очереди на реализацию"]
+    People["3. People (Verwaltung)<br/>(дирижеры, пианисты)"]
+    Rep["5. Repertoire<br/>(BookAttachment, Mappe, кастомные темы)"]
+    Abs["4. Absences (Abwesenheiten)"]
+    Reh["6. Rehearsal Log (Chorprobe)"]
+    Perf["7. Performance Log (Vortrag)"]
+    RepProj["8. Reporting / History"]
+  end
 
-Optional (empfohlen für mehrere Nutzer): über "Daten & Backup" mit einer
-Datei auf der Festplatte verknüpfen (z. B. in einem geteilten,
-OneDrive-synchronisierten Ordner). Ab dann schreibt und liest die App diese
-Datei automatisch und gleicht die Einträge aller Personen zusammen.
+  Id --> CommAcc --> People
+  Lib --> Rep
+  People --> Reh & Perf
+  Rep --> Reh & Perf
+  Reh & Perf --> RepProj
+```
 
-Wichtige Einschränkung: Der automatische Abgleich ist ADDITIV - er führt
-neue Einträge zusammen, kennt aber keine Löschungen. Gelöschte Einträge auf
-einem Gerät können durch ein noch nicht abgeglichenes anderes Gerät
-zurückkommen. Es handelt sich also nicht um eine echte Mehrbenutzer-
-Datenbank mit Konfliktauflösung, sondern um einen pragmatischen Abgleich,
-der für die gemeinsame Nutzung in einem Chor gut funktioniert.
+### Сводка состояния возможностей (Capabilities)
 
+| # | Возможность | Сервер (`chor-app-server`) | Клиент (`chor-app-client`) | Статус |
+|---|---|---|---|---|
+| **1** | **Identity & Community** | `IdentityModule`, JWT, пароли, токены | `features/auth/`, регистрация, вход, сессии | **Готово** |
+| **2** | **Notifications** | `NotificationsModule` (Nodemailer, SMTP) | — | **Готово** |
+| **1a** | **Community Access** | `CommunityPermission` (`PEOPLE_MANAGE`), Guard | Отображение прав в аккаунте | **Готово** |
+| **10** | **Library (Каталог)** | `LibraryModule`, импорт CSV/XLSX/JSON, скрипты сидирования | `features/catalog/`, браузер каталога, модалка в кабинете | **Готово** |
+| **11** | **Superadmin** | `SuperadminModule`, `aud`-токены, профиль, сидирование | `features/superadmin/`, админ-панель (`/admin/*`) | **Готово** |
+| **—** | **Dashboard Shell** | — | `AppHeader` (кнопки Feedback & Каталог), `TabNav`, `/konto` | **Готово** |
+| **3** | **People** (*Verwaltung*) | Специфицировано в OpenSpec (`add-people`) | Страница-заглушка готова к замене | В очереди |
+| **5** | **Repertoire** | Зафиксировано в ADR 0009; `BookAttachment` | Спроектировано; в клиенте эмуляция через `sessionStorage` | В очереди |
+| **4** | **Absences** | Запланировано | Страница-заглушка | Запланировано |
+| **6** | **Rehearsal Log** (*Chorprobe*) | Запланировано | Страница-заглушка | Запланировано |
+| **7** | **Performance Log** (*Vortrag*) | Запланировано | Страница-заглушка | Запланировано |
+| **8** | **Reporting** (*Auswertung*) | Запланировано | Страница-заглушка | Запланировано |
 
-TECHNISCHER HINTERGRUND (FÜR INTERESSIERTE)
----------------------------------------------
-- chor-app.html ist eine einzelne, in sich geschlossene Datei: HTML, CSS
-  und JavaScript in einer Datei, die Liederdatenbank als eingebettetes
-  JSON. Keine externen Abhängigkeiten, keine Serveranbindung nötig.
-- Persistenz im Browser über die File System Access API (Chrome/Edge) für
-  die optionale Datei-Verknüpfung; localStorage als Grundspeicher.
-- Chor-App.xlsx wurde mit denselben Grunddaten erzeugt (openpyxl), mit
-  Formeln (INDEX/MATCH, COUNTIFS) statt fester Werte, damit sich die
-  Auswertungen automatisch aktualisieren.
-- Farbcode in der Excel-Datei: blaue Schrift = Eingabezellen, schwarze
-  Schrift = Formeln/generierte Daten (nicht überschreiben).
+---
 
+## 4. Ключевые архитектурные правила
 
-KONTAKT / URHEBER
-------------------
-(c) Daniel Kröcker - Chor-App
+1. **Единый каталог vs. Репертуар сообщества (ADR 0009 & ADR 0010):**
+   * Печатные книги (*Buch 1–4*) ведутся суперадминистраторами централизованно в глобальной библиотеке (`LibraryModule`).
+   * Сообщества подключают книги через `BookAttachment` (живая связь без дублирования строк в БД) либо ведут собственные папки (*Mappe*, сущность `Folder`).
+   * Каждая песня имеет доступ к каноническим темам библиотеки + кастомным темам конкретного сообщества.
+2. **Изоляция мультитенантности (ADR 0003, ADR 0007):**
+   * Данные хоров строго изолированы по `communityId`.
+   * Пользователь может входить в несколько сообществ с разными ролями (`ADMINISTRATOR` / `MEMBER`).
+3. **Модульный монолит (ADR 0008):**
+   * Доступ между модулями сервера разрешён **только через экспортируемый публичный API (barrel `index.ts`)** модуля, прямой импорт внутренних файлов запрещён линтером (`no-restricted-imports`).
+4. **Языковая политика (ADR 0002, `glossary.md`):**
+   * **Пользовательский интерфейс (UI):** немецкий язык (*«Liederbuch-Katalog»*, *«Chorprobe»*, *«Vortrag»*, *«Konto»*).
+   * **Исходный код, доменные модели, БД, API и коммиты:** английский язык (`LibraryBook`, `Song`, `Rehearsal`, `Community`).
+   * **Внутренняя проектная документация фич (`docs/feature/...`):** русский язык.
