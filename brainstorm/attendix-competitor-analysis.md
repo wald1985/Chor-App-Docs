@@ -131,3 +131,13 @@ Gegliedert in sechs Abschnitte:
    vorher — kein Blocker für den aktuellen Implementierungsplan.
 5. Keine Code-Änderungen aus diesem Dokument ableiten, ohne die obigen
    Fragen beantwortet zu haben (nur Brainstorm, keine Decision).
+
+## 6. Technische & Organisatorische Hintergründe (Recherche-Update)
+
+Nachträgliche Recherchen (Quelltext-Analyse der öffentlichen Seite und des Impressums) haben folgende Rahmenbedingungen ergeben:
+
+- **Entwicklung & Betrieb:** Das Projekt wird von einem einzelnen Indie-Entwickler (Matthias Eckstädt, Schifferstadt) betrieben. Es ist kein großes, venture-finanziertes Unternehmensprodukt.
+- **Zielgruppe & Vertrieb:** Es gibt keine öffentliche Preisliste und keine offene Registrierung (Closed SaaS). Das System ist sehr nischig und wird vermutlich nur auf Anfrage oder per persönlichem Kontakt an spezifische Gemeinden/Chöre vertrieben (oder ist ein ursprünglich privates Projekt).
+- **Kosten:** Für die Endnutzer (Chormitglieder) zweifellos kostenlos. Ob die Organisationen (Instanzen) eine monatliche Gebühr zahlen, ist öffentlich nicht dokumentiert.
+- **Tech-Stack:** Die App ist eine Single Page Application (SPA), gebaut mit **Angular** und **Ionic**. Sie unterstützt Progressive Web App (PWA) Features (Web-Manifest für Installation). Das Hosting läuft über Strato.
+- **Tracking:** Es werden keine aggressiven Analyse-Tools (wie Google Analytics) eingesetzt, was zum kleinen, privaten Charakter der App passt.

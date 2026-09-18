@@ -129,20 +129,18 @@ context: |
     - Conductor (Dirigent)
     - Pianist (Klavierspieler)
     - Theme (Thema/Themen)        - topic tag(s) attached to a song
-    - NOTE: the three-collection model below is superseded by ADR 0009
-      (Folders, attached library books, isNew flag) and ADR 0010 (library).
-    - Books / Folder / NewSongs (Buecher / Mappe / Neue Lieder) — the three
-      independent song collections (see below)
+    - Folder (Mappe)              - a Community-owned collection of custom songs
+    - BookAttachment              - links a Community to a global LibraryBook
     - Community (Gemeinschaft)    - a tenant: one choir/group and
                                     everything it owns
 
   Core capabilities to (re)build, taken from the legacy app (English names
   per glossary.md; German original noted once per capability):
-    - Three independent, separately-numbered song collections: Books
-      (Bücher 1-4, continuously numbered 1-727, cross-book themes), Folder
-      (Mappe: 115 songs, own numbering, no themes), NewSongs (Neue Lieder:
-      fully free, user-defined collection). All three can be extended with
-      new songs via the "manage songs" (Lieder verwalten) feature.
+    - Community Repertoire: A unified catalog for each Community combining global
+      printed editions (via BookAttachment, managed in RepertoireSettings) and
+      custom songs organized in Community-owned Folders (Mappe). Folders support
+      adding/editing songs (with isNew flag). Replaces the legacy three-collection
+      model.
     - Performance/Rehearsal logging (Vortrag/Chorprobe): record which song
       was sung when, with collection, number, pianist, conductor, note.
       Title/theme are looked up automatically. Rehearsal is session-based:
@@ -151,13 +149,12 @@ context: |
       searchable by title, number, pianist, conductor, or WarmUp leader.
       Performance does NOT require a Rehearsal — a song can be logged as a
       standalone, spontaneous performance with no related rehearsal.
-    - Theme search (Themensuche): search Books by theme and/or
-      title/number; Folder and NewSongs have their own separate search (no
-      theme filter, kept deliberately apart from the cross-book theme
-      search).
-    - Manage songs (Lieder verwalten): add new songs to any collection;
-      attach additional themes to any existing song (pick existing or
-      type a new theme name, which then becomes available everywhere).
+    - Theme search (Themensuche): unified search across the Community's entire
+      repertoire (both attached books and custom folders) by theme, title, or number.
+      Supports both global library themes and custom Community themes.
+    - Manage songs (Lieder verwalten): add new custom songs to Folders;
+      attach additional themes to any song (including global read-only songs) via
+      SongThemeAssignment (pick existing or type a new theme name).
     - Reporting (Auswertung): usage counts per song (total / Performance /
       Rehearsal), plus separate stats per pianist and per conductor.
     - Data & backup / multi-user: legacy app stores in browser localStorage
